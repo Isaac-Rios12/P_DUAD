@@ -1,3 +1,7 @@
+import csv
+
+students_list = []
+
 def ask_grade(subject):
     while True:
         try :
@@ -20,12 +24,37 @@ def add_student():
             social_grade = ask_grade("Sociales")
             science_grade = ask_grade("Ciencias")
             
+            student = {
+                "Name": name_student,
+                "Section": seccion,
+                "Spanish grade": spanish_grade,
+                "English grade": english_grade,
+                "Social grade": social_grade,
+                "Science grade": science_grade
+            }
+            students_list.append(student)
+            
+            
             keep_asking = int(input("Elige una opcion: 1.Ingresar otra estudiante 2.Salir..."))
             if keep_asking == 2:
                 print("Redirigiendo al mnu principal...")
                 break
+            
         except ValueError:
             print("error encontrado")
+            
+    print(students_list)
+    return students_list
+
+def show_students():
+    for student in students_list:
+        print("ESTUDIANTE:       ", student["Name"])
+        print("Seccion:          ", student["Section"])
+        print("Nota de espanol:  ", student["Spanish grade"])
+        print("Nota de ingles:   ", student["English grade"])
+        print("Nota de sociales: ", student["Social grade"])
+        print("Nota de ciencias: ", student["Science grade"])
+        print("-------------------------------------------------")
 
 def menu():
     while True:
@@ -44,7 +73,7 @@ def menu():
                 if option == 1:
                     add_student()
                 elif option == 2:
-                    print("has entrado a la opcion 2")
+                    show_students()
                 elif option == 3:
                     print("has entrado a la opcion 3")
                 elif option == 4:
