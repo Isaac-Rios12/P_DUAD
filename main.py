@@ -81,10 +81,23 @@ def show_top_3_best_average_grade():
     print("Los mejores 3 estudiantes son:")
     for i in range(min(3, len(sort_students_list))):
         student = sort_students_list[i]
-        print(f"Nombre: {student['Name']}")
-        print(f"Sección: {student['Section']}")
+        print(f"Nombre:   {student['Name']}")
+        print(f"Sección:  {student['Section']}")
         print(f"Promedio: {student['Average']}")
         print("--------------------")
+
+def average_of_all_students():
+    try:
+        total_average= 0
+        for student in students_list:
+            total_average += student["Average"]
+            
+        total_average /= len(students_list)
+        print(f"El promedio total es de...{total_average}")
+        
+    except KeyError:
+        print("error")
+    
 def menu():
     while True:
     
@@ -106,7 +119,7 @@ def menu():
                 elif option == 3:
                     show_top_3_best_average_grade()
                 elif option == 4:
-                    print("has entrado a la opcion 4")
+                    average_of_all_students()
                 elif option == 5:
                     print("has entrado a la opcion 5")
                 elif option == 6:
