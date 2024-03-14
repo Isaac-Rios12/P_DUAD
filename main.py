@@ -1,6 +1,15 @@
 import csv
 
 students_list = []
+students_headers = (
+    'Name',
+    'Section',
+    'Spanish grade',
+    'English grade',
+    'Social grade',
+    'Science grade',
+    'Average'
+)
 
 def ask_grade(subject):
     while True:
@@ -97,6 +106,18 @@ def average_of_all_students():
         
     except KeyError:
         print("error")
+        
+def export_csv_file(file_path, data, headers):
+    try:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, headers)
+            writer.writeheader()
+            writer.writerows(data)
+            print("agregado con exito")
+            
+    except Exception as e:
+        print(f"Error al exportar los datos a {file_path}: {e}")
+
     
 def menu():
     while True:
@@ -111,7 +132,7 @@ def menu():
     5. Exportar datos a CSV
     6. Importar datos ya exprotados CSV
     7. salir''')
-                option = int(input ("Ingrese la opcion necesaria"))
+                option = int(input ("Ingrese la opcion necesaria..."))
                 if option == 1:
                     add_student()
                 elif option == 2:
@@ -121,7 +142,8 @@ def menu():
                 elif option == 4:
                     average_of_all_students()
                 elif option == 5:
-                    print("has entrado a la opcion 5")
+                    print("hola")
+                    export_csv_file('students_list.csv', students_list, students_headers)
                 elif option == 6:
                     print("has entrado a la opcion 6")
                 elif option == 7:
