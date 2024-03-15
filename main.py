@@ -22,7 +22,8 @@ def ask_grade(subject):
             
         except ValueError:
             print("gas ingresado un valor no valido...")
-            
+
+
 def ask_if_keep_adding_student():
     try:
         keep_asking = int(input("Elige una opcion: 1.Ingresar otra estudiante 2.Salir..."))
@@ -35,7 +36,7 @@ def ask_if_keep_adding_student():
             print("opcion fuera de rango")
     except ValueError:
         print("valor no valido")
-        
+
 
 def add_student():
     while True:
@@ -66,9 +67,7 @@ def add_student():
             
         except ValueError:
             print("error encontrado")
-            
-    #print(students_list)
-    #return students_list
+
 
 def show_students():
     try:
@@ -85,11 +84,8 @@ def show_students():
     except Exception:
         print("Error al mostrat la lista...")
 
+
 def show_top_3_best_average_grade():
-    #sort_students_list = students_list.sort(key=lambda x: x["Average"])
-    #students_list.sort(key=lambda x: x["Average"], reverse=True)
-    #print(students_list)
-    #print()
     try:
         sort_students_list = sorted(students_list, key=lambda x: float(x["Average"]), reverse=True)
         print("Los mejores 3 estudiantes son:")
@@ -103,6 +99,7 @@ def show_top_3_best_average_grade():
     except KeyError:
         print("Error al ordenar la lista...")
 
+
 def average_of_all_students():
     try:
         total_average= 0
@@ -114,7 +111,8 @@ def average_of_all_students():
         
     except KeyError:
         print("Error...")
-        
+
+
 def export_csv_file(file_path, data, headers):
     try:
         with open(file_path, 'w', encoding='utf-8') as file:
@@ -123,9 +121,8 @@ def export_csv_file(file_path, data, headers):
             writer.writerows(data)
             print("agregado con exito")
             
-    except Exception as e:
-        print(f"Error al exportar los datos a {file_path}: {e}")
-        
+    except Exception:
+        print(f"Error al exportar los datos")
 
 
 def import_csv_file(file_path):
@@ -135,17 +132,16 @@ def import_csv_file(file_path):
             reader = csv.DictReader(file)
             students_list = list(reader)
             
-        print(students_list)
+        #print(students_list)
         
     except Exception:
         print("error...")
 
-    
+
 def menu():
     while True:
     
         try:
-        
                 print('''
     1. Ingresar estudiante
     2. Ver informacion de estudiantes ingresados.
@@ -177,4 +173,5 @@ def menu():
             print("Valor no valido....")
         
 
-menu()
+if __name__ == '__main__':
+    menu()
