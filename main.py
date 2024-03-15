@@ -27,11 +27,8 @@ def ask_grade(subject):
 def ask_if_keep_adding_student():
     try:
         keep_asking = int(input("Elige una opcion: 1.Ingresar otra estudiante 2.Salir..."))
-        if keep_asking == 1:
-            return True
-        elif keep_asking == 2:
-            print("Redirigiendo al mnu principal...")
-            return False
+        if keep_asking == 1 or keep_asking == 2:
+            return keep_asking == 1
         else:
             print("opcion fuera de rango")
     except ValueError:
