@@ -71,41 +71,49 @@ def add_student():
     #return students_list
 
 def show_students():
-    for student in students_list:
-        print("ESTUDIANTE:       ", student["Name"])
-        print("Seccion:          ", student["Section"])
-        print("Nota de espanol:  ", student["Spanish grade"])
-        print("Nota de ingles:   ", student["English grade"])
-        print("Nota de sociales: ", student["Social grade"])
-        print("Nota de ciencias: ", student["Science grade"])
-        print("Promedio:         ", student["Average"])
-        print("-------------------------------------------------")
+    try:
+        for student in students_list:
+            print("ESTUDIANTE:       ", student["Name"])
+            print("Seccion:          ", student["Section"])
+            print("Nota de espanol:  ", student["Spanish grade"])
+            print("Nota de ingles:   ", student["English grade"])
+            print("Nota de sociales: ", student["Social grade"])
+            print("Nota de ciencias: ", student["Science grade"])
+            print("Promedio:         ", student["Average"])
+            print("-------------------------------------------------")
+            
+    except Exception:
+        print("Error al mostrat la lista...")
 
 def show_top_3_best_average_grade():
     #sort_students_list = students_list.sort(key=lambda x: x["Average"])
     #students_list.sort(key=lambda x: x["Average"], reverse=True)
     #print(students_list)
     #print()
-    sort_students_list = sorted(students_list, key=lambda x: x["Average"], reverse=True)
-    print("Los mejores 3 estudiantes son:")
-    for i in range(min(3, len(sort_students_list))):
-        student = sort_students_list[i]
-        print(f"Nombre:   {student['Name']}")
-        print(f"Sección:  {student['Section']}")
-        print(f"Promedio: {student['Average']}")
-        print("--------------------")
+    try:
+        sort_students_list = sorted(students_list, key=lambda x: float(x["Average"]), reverse=True)
+        print("Los mejores 3 estudiantes son:")
+        for i in range(min(3, len(sort_students_list))):
+            student = sort_students_list[i]
+            print(f"Nombre:   {student['Name']}")
+            print(f"Sección:  {student['Section']}")
+            print(f"Promedio: {student['Average']}")
+            print("--------------------")
+            
+    except KeyError:
+        print("Error al ordenar la lista...")
 
 def average_of_all_students():
     try:
         total_average= 0
         for student in students_list:
-            total_average += student["Average"]
+            total_average += float(student["Average"])
             
         total_average /= len(students_list)
         print(f"El promedio total es de...{total_average}")
         
     except KeyError:
-        print("error")
+        print("Error...")
         
 def export_csv_file(file_path, data, headers):
     try:
@@ -117,6 +125,20 @@ def export_csv_file(file_path, data, headers):
             
     except Exception as e:
         print(f"Error al exportar los datos a {file_path}: {e}")
+        
+
+
+def import_csv_file(file_path):
+    global students_list
+    try: 
+        with open(file_path, 'r') as file:
+            reader = csv.DictReader(file)
+            students_list = list(reader)
+            
+        print(students_list)
+        
+    except Exception:
+        print("error...")
 
     
 def menu():
@@ -145,7 +167,7 @@ def menu():
                     print("hola")
                     export_csv_file('students_list.csv', students_list, students_headers)
                 elif option == 6:
-                    print("has entrado a la opcion 6")
+                    import_csv_file('students_list.csv')
                 elif option == 7:
                     print("has salido del sistema, GRACIAS!!!!")
                     break
