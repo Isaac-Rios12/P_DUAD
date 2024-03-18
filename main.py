@@ -1,6 +1,7 @@
 import csv
 
 students_list = []
+
 students_headers = (
     'Name',
     'Section',
@@ -116,18 +117,20 @@ def export_csv_file(file_path, data, headers):
             writer = csv.DictWriter(file, headers)
             writer.writeheader()
             writer.writerows(data)
-            print("agregado con exito")
+            print("exportado con exito")
             
     except Exception:
         print(f"Error al exportar los datos")
 
 
 def import_csv_file(file_path):
-    global students_list
+    global students_list #!pregunta aca....
+    
     try: 
         with open(file_path, 'r') as file:
             reader = csv.DictReader(file)
             students_list = list(reader)
+            print("Documento importado....")
             
         #print(students_list)
         
