@@ -123,19 +123,26 @@ def export_csv_file(file_path, data, headers):
         print(f"Error al exportar los datos")
 
 
-def import_csv_file(file_path):
-    global students_list #!pregunta aca....
-    
+def import_csv_file(file_path): 
     try: 
         with open(file_path, 'r') as file:
             reader = csv.DictReader(file)
-            students_list = list(reader)
+            imported_list = list(reader)
             print("Documento importado....")
-            
-        #print(students_list)
-        
-    except Exception:
-        print("error...")
+            print(imported_list)
+            students_list.extend(imported_list)
+            #return imported_list
+
+    except FileNotFoundError:
+        print("Archivo no encontrado...")
+        return []
+
+    except csv.Error:
+        print("Error al procesar el archivo...")
+        return []
+    except Exception as ex:
+        print(f"error: {ex}")
+        return []
 
 
 def menu():
@@ -154,16 +161,16 @@ def menu():
                 if option == 1:
                     add_student()
                 elif option == 2:
-                    show_students()
+                    students_list = show_students()
+                    #6show_students()
                 elif option == 3:
                     show_top_3_best_average_grade()
                 elif option == 4:
                     average_of_all_students()
                 elif option == 5:
-                    print("hola")
                     export_csv_file('students_list.csv', students_list, students_headers)
                 elif option == 6:
-                    import_csv_file('students_list.csv')
+                    students_list = import_csv_file('students_list.csv')
                 elif option == 7:
                     print("has salido del sistema, GRACIAS!!!!")
                     break
