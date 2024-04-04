@@ -1,7 +1,5 @@
 import csv
 
-students_list = []
-
 students_headers = (
     'Name',
     'Section',
@@ -36,7 +34,7 @@ def ask_if_keep_adding_student():
         print("valor no valido")
 
 
-def add_student():
+def add_student(students_list):
     while True:
         try:
             name_student = input("Ingrese el nombre completo del estudiante...")
@@ -67,7 +65,7 @@ def add_student():
             print("error encontrado")
 
 
-def show_students():
+def show_students(students_list):
     try:
         for student in students_list:
             print("ESTUDIANTE:       ", student["Name"])
@@ -83,7 +81,7 @@ def show_students():
         print("Error al mostrat la lista...")
 
 
-def show_top_3_best_average_grade():
+def show_top_3_best_average_grade(students_list):
     try:
         sort_students_list = sorted(students_list, key=lambda x: float(x["Average"]), reverse=True)
         print("Los mejores 3 estudiantes son:")
@@ -98,7 +96,7 @@ def show_top_3_best_average_grade():
         print("Error al ordenar la lista...")
 
 
-def average_of_all_students():
+def average_of_all_students(students_list):
     try:
         total_average= 0
         for student in students_list:
@@ -123,7 +121,7 @@ def export_csv_file(file_path, data, headers):
         print(f"Error al exportar los datos")
 
 
-def import_csv_file(file_path): 
+def import_csv_file(students_list, file_path): 
     try: 
         with open(file_path, 'r') as file:
             reader = csv.DictReader(file)
@@ -146,6 +144,9 @@ def import_csv_file(file_path):
 
 
 def menu():
+
+    students_list = []
+
     while True:
     
         try:
@@ -159,18 +160,20 @@ def menu():
     7. salir''')
                 option = int(input ("Ingrese la opcion necesaria..."))
                 if option == 1:
-                    add_student()
+                    add_student(students_list)
                 elif option == 2:
-                    students_list = show_students()
+                    show_students(students_list)
+                    #students_list = show_students()
                     #6show_students()
                 elif option == 3:
-                    show_top_3_best_average_grade()
+                    show_top_3_best_average_grade(students_list)
                 elif option == 4:
-                    average_of_all_students()
+                    average_of_all_students(students_list)
                 elif option == 5:
                     export_csv_file('students_list.csv', students_list, students_headers)
                 elif option == 6:
-                    students_list = import_csv_file('students_list.csv')
+                    import_csv_file(students_list, 'students_list.csv')
+                    
                 elif option == 7:
                     print("has salido del sistema, GRACIAS!!!!")
                     break
