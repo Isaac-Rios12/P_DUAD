@@ -1,4 +1,4 @@
-
+from data import Student
 
 
 def ask_grade(subject):
@@ -29,25 +29,15 @@ def add_student(students_list):
     while True:
         try:
             name_student = input("Ingrese el nombre completo del estudiante...")
-            seccion = input("Ingrese la seccion del estudiante...")
+            section = input("Ingrese la seccion del estudiante...")
             spanish_grade = ask_grade("Espanol")
             english_grade = ask_grade("Ingles")
             social_grade = ask_grade("Sociales")
             science_grade = ask_grade("Ciencias")
-            average_student = (spanish_grade + english_grade + science_grade + social_grade) / 4
+
             
-            student = {
-                "Name": name_student,
-                "Section": seccion,
-                "Spanish grade": spanish_grade,
-                "English grade": english_grade,
-                "Social grade": social_grade,
-                "Science grade": science_grade,
-                "Average": average_student
-            }
+            student = Student(name_student, section, spanish_grade, english_grade, social_grade, science_grade)
             students_list.append(student)
-            
-            #ask_if_keep_adding_student()
             
             if not ask_if_keep_adding_student():
                 break
@@ -59,13 +49,13 @@ def add_student(students_list):
 def show_students(students_list):
     try:
         for student in students_list:
-            print("ESTUDIANTE:       ", student["Name"])
-            print("Seccion:          ", student["Section"])
-            print("Nota de espanol:  ", student["Spanish grade"])
-            print("Nota de ingles:   ", student["English grade"])
-            print("Nota de sociales: ", student["Social grade"])
-            print("Nota de ciencias: ", student["Science grade"])
-            print("Promedio:         ", student["Average"])
+            print("ESTUDIANTE:       ", student.get_name())
+            print("Seccion:          ", student.get_section())
+            print("Nota de espanol:  ", student.get_spanish_grade())
+            print("Nota de ingles:   ", student.get_english_grade())
+            print("Nota de sociales: ", student.get_social_grade())
+            print("Nota de ciencias: ", student.get_science_grade())
+            print("Promedio:         ", student.calculate_average())
             print("-------------------------------------------------")
             
     except Exception:
@@ -74,29 +64,32 @@ def show_students(students_list):
 
 def show_top_3_best_average_grade(students_list):
     try:
-        sort_students_list = sorted(students_list, key=lambda x: float(x["Average"]), reverse=True)
+        sort_students_list = sorted(students_list, key=lambda x: x.calculate_average(), reverse=True)
         print("Los mejores 3 estudiantes son:")
         for i in range(min(3, len(sort_students_list))):
             student = sort_students_list[i]
-            print(f"Nombre:   {student['Name']}")
-            print(f"Sección:  {student['Section']}")
-            print(f"Promedio: {student['Average']}")
+            print(f"Nombre:   {student.get_name()}")
+            print(f"Sección:  {student.get_section()}")
+            print(f"Promedio: {student.calculate_average()}")
             print("--------------------")
             
-    except KeyError:
-        print("Error al ordenar la lista...")
-
+    except ValueError as ve:
+        print(f"Error al convertir un valor a un número: {ve}")
+    except TypeError as te:
+        print(f"Error de tipo al ordenar la lista: {te}")
+    except Exception as e:
+        print(f"Error desconocido: {e}")
 
 def average_of_all_students(students_list):
     try:
-        total_average= 0
+        total_average = 0
         for student in students_list:
-            total_average += float(student["Average"])
+            total_average += student.calculate_average()
             
         total_average /= len(students_list)
         print(f"El promedio total es de...{total_average}")
         
-    except KeyError:
-        print("Error...")
+    except Exception:
+        print("Error al calcular el promedio total...")
 
 
