@@ -10,9 +10,8 @@ class Bus:
         
     
 
-    def add_passenger(self, name):
+    def add_passenger(self, person):
         if len(self.passengers) < self.max_passengers:
-            person = Person(name)
             self.passengers.append(person)
             print(f"{person.name} ha subido al bus...")
         else:
@@ -37,7 +36,8 @@ while True:
 
     if option == 1:
         passenger_name = input("Ingrese el nombre del pasajero...")
-        my_bus.add_passenger(passenger_name)
+        person = Person(passenger_name)
+        my_bus.add_passenger(person)
     
     elif option == 2:
         my_bus.remove_passenger()
