@@ -3,27 +3,28 @@ class Animal:
         self.name = name
 
     def eat(self):
-        print("esta comiendo...")
+        print(f'{self.name} está comiendo')
 
-    def sleep(sleep):
-        print("esta durmiendo...")
+    def sleep(self):
+        print(f'{self.name} está durmiendo')
 
 class Mascot:
     def __init__(self, name):
         self.name = name
 
     def play(self):
-        print("esta jugando...")
+        print(f'{self.name} está jugando')
 
 class Dog(Animal, Mascot):
-    def __init__(self, name, raza):
+    def __init__(self, name):
         Animal.__init__(self, name)
         Mascot.__init__(self, name)
-        self.raza = raza
 
     def bark(self):
-        print("esta ladrando...")
+        print(f'{self.name} está ladrando')
 
-my_dog = Dog("Kila", "Amstaff")
+my_dog = Dog("Kila")
 
 my_dog.bark()
+my_dog.eat()
+my_dog.play()
