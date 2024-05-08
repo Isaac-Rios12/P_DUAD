@@ -7,7 +7,11 @@ class BankAccount:
         self._balance += amount
 
     def _substract_balance(self, amount):
-        self._balance -= amount
+        #self._balance -= amount
+        if amount > self._balance:
+            print("Monto no disponible...")
+        else:
+            self._balance -= amount
 
 
 class SavingsAccount(BankAccount):
@@ -20,8 +24,10 @@ class SavingsAccount(BankAccount):
         print(f"el monto agregado es de...{amount}")
 
     def check_withdrawal(self, substract):
-        if self._balance - substract < self.min_balance:
-            print("Monto supera el min_balance")
+        if substract > self._balance:
+            print("Fondos insuficientes...")
+        elif self._balance - substract < self.min_balance:
+            print(f"Monto supera el min_balance... total en cuenta: {self._balance}... disponible a retirar: {(self._balance-self.min_balance)}")
         else:
             self._substract_balance(substract)
             print("Transaccion realizada...")
