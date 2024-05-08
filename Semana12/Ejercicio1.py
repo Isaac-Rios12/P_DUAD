@@ -7,11 +7,7 @@ class BankAccount:
         self._balance += amount
 
     def _substract_balance(self, amount):
-        #self._balance -= amount
-        if amount > self._balance:
-            print("Monto no disponible...")
-        else:
-            self._balance -= amount
+        self._balance -= amount
 
 
 class SavingsAccount(BankAccount):
