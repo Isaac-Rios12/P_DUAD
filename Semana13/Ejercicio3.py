@@ -7,7 +7,7 @@ class User:
         self.date_of_birth = date_of_birth
 
     @property
-    def calculate_age(self):
+    def age(self):
         today = date.today()
         return (
             today.year
@@ -21,8 +21,9 @@ class User:
 def adult_only(func):
     def wrapper(*args, **kwargs):
         try:
-            if user.calculate_age < 18:
-                raise ValueError("No es mayor de edad...")
+            if user.age < 18:
+                print("No es mayor de edad...")
+                return
             return func(*args, **kwargs)
         except ValueError as e:
             print(e)
@@ -33,13 +34,13 @@ def verify_if_user_is_adult(user):
     print("El usuario es mayor de edad")
     
 user = User(date(2010, 3, 12))
-print(f'la edad es {user.calculate_age}')
+print(f'la edad es {user.age}')
 verify_if_user_is_adult(user)
 
 user = User(date(2022, 6, 1))
-print(f'la edad es {user.calculate_age}')
+print(f'la edad es {user.age}')
 verify_if_user_is_adult(user)
 
 user = User(date(2003, 3, 1))
-print(f'la edad es {user.calculate_age}')
+print(f'la edad es {user.age}')
 verify_if_user_is_adult(user)

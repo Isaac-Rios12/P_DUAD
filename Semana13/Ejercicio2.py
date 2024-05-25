@@ -4,8 +4,9 @@ def numbers_only(func):
         try:
             for valor in args:
                 if not isinstance(valor, (int, float)):
-                    raise ValueError(f"{valor} No es un numero")
-            func(*args)
+                    print(f"{valor} No es un numero")
+                    return
+            return func(*args)
         except ValueError as e:
             print(e)
     return wrapper
