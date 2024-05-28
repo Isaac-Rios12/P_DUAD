@@ -1,14 +1,10 @@
 
 def numbers_only(func):
     def wrapper(*args):
-        try:
             for valor in args:
                 if not isinstance(valor, (int, float)):
-                    print(f"{valor} No es un numero")
-                    return
+                    raise ValueError(f"{valor} no es un número")
             return func(*args)
-        except ValueError as e:
-            print(e)
     return wrapper
 
         
@@ -17,4 +13,11 @@ def numbers_only(func):
 def my_parameters(*args):
     print(*args)
 
-my_parameters(2.5, 1, 2, 3, 4, 5, "a")
+def main():
+    try:
+        my_parameters(2.5, 1, 2, 3, 4, 5, "a")
+    except ValueError as e:
+        print(e)
+
+if __name__ == "__main__":
+    main()

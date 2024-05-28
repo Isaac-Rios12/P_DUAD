@@ -20,27 +20,24 @@ class User:
     
 def adult_only(func):
     def wrapper(*args, **kwargs):
-        try:
-            if user.age < 18:
-                print("No es mayor de edad...")
-                return
-            return func(*args, **kwargs)
-        except ValueError as e:
-            print(e)
+        user = args[0]
+        if user.age < 18:
+            raise ValueError("No es mayor de edad...")
+        return func(*args, **kwargs)
     return wrapper
 
 @adult_only
 def verify_if_user_is_adult(user):
     print("El usuario es mayor de edad")
     
-user = User(date(2010, 3, 12))
-print(f'la edad es {user.age}')
-verify_if_user_is_adult(user)
 
-user = User(date(2022, 6, 1))
-print(f'la edad es {user.age}')
-verify_if_user_is_adult(user)
+def main():
+    try:
+        user = User(date(2010, 3, 12))
+        print(f'la edad es {user.age}')
+        verify_if_user_is_adult(user)
+    except ValueError as e:
+        print(e)
 
-user = User(date(2003, 3, 1))
-print(f'la edad es {user.age}')
-verify_if_user_is_adult(user)
+if __name__ == "__main__":
+    main()
