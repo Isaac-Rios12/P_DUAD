@@ -41,8 +41,8 @@ stack.push("Soy el tercer nodo")
 print("Estructura del stack después de push:")
 stack.print_stack()
 
-print("\nElemento eliminado del stack (pop):")
+print("Elemento eliminado del stack: ")
 print(stack.pop())
 
-print("\nEstructura del stack después de pop:")
+print("Estructura del stack después de pop:")
 stack.print_stack()
