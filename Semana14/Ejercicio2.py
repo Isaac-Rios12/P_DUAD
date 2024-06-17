@@ -1,9 +1,8 @@
 
 class Node:
-    def __init__(self, data, next=None, prev=None):
+    def __init__(self, data, next=None):
         self.data = data
-        self.next = None
-        self.prev = None
+        self.next = next
 
 class Deque:
     def __init__(self):
@@ -16,7 +15,6 @@ class Deque:
             self.head = self.tail = new_node
         else:
             new_node.next = self.head
-            self.head.prev = new_node
             self.head = new_node
 
     def push_right(self, data):
@@ -24,31 +22,37 @@ class Deque:
         if self.tail is None:
             self.head = self.tail = new_node
         else:
-            new_node.prev = self.tail
             self.tail.next = new_node
             self.tail = new_node
-        #return data
+        
 
     def pop_left(self):
         if self.head is None:
             raise IndexError('Empty deque')
         data = self.head.data
         self.head = self.head.next
-        if self.head is not None:
-            self.head.prev = None
-        else:
+        if self.head is None:
             self.tail = None
         return data
     
     def pop_right(self):
         if self.tail is None:
             raise IndexError('Empty deque')
+        
+        #esto en caso de que solo un elemento
+        if self.head == self.tail:
+            data = self.tail.data
+            self.head = self.tail = None
+            return data
+        
+        #aca itero para encontrar el penulti
+        current = self.head
+        while current.next != self.tail:
+            current = current.next
+
         data = self.tail.data
-        self.tail = self.tail.prev
-        if self.tail is not None:
-            self.tail.next = None
-        else:
-            self.head = None
+        self.tail = current
+        self.tail.next = None
         return data
     
     def print_structure(self):
