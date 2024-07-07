@@ -10,8 +10,8 @@ def bubble_sort(list_to_order):
                 list_to_order[index + 1] = current_number
                 has_made_changes = True
 
-    if not has_made_changes:
-        return
+        if not has_made_changes:
+            return
 
 unorder_list = [10, 3, 9, 8, 14]
 bubble_sort(unorder_list)
