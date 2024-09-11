@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
-from transaction_layout import show_movement_layout
-from category_layout import show_category_layout
+from new_transaction_window import show_movement_layout
+from add_category_window import show_category_layout
 data = [
     [20, 20500]
 ]
@@ -16,7 +16,7 @@ layout = [
     sg.Column([
         [sg.Button("Nuevo Gasto", key='-EXPENSE-')],
         [sg.Button("Nuevo Ingreso", key='-INCOME-')],
-        [sg.Button("Nueva Categoria  ")]
+        [sg.Button("Nueva Categoria  ", key='-CATEGORY-')]
     ], vertical_alignment='top')
     ]
 ]
@@ -26,17 +26,17 @@ window = sg.Window("Gestion de finanzas...", layout)
 while True:
     event, values = window.read()
     
-    if event == "Nuevo Gasto":
+    if event == "-EXPENSE-":
         window.hide()
-        show_movement_layout("Expense")
+        show_movement_layout()
         window.un_hide()
     
-    if event == "Nuevo Ingreso":
+    if event == "-INCOME-":
         window.hide()
-        show_movement_layout("Income")
+        show_movement_layout()
         window.un_hide()
     
-    elif event == "Nueva Categoria  ":
+    elif event == "-CATEGORY-":
         window.hide()
         show_category_layout()
         window.un_hide()

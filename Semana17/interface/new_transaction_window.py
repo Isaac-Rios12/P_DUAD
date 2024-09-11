@@ -19,8 +19,13 @@ def show_movement_layout():
         if event == sg.WINDOW_CLOSED or event == "Regresar":
             break
         elif event == "Guardar":
+            title = values['-TITLE-']
             category_selected = values['-CATEGORY-']
             amount = values['-AMOUNT-']
+
+            if not title.strip():
+                sg.popup("Debes ingresar un titulo...")
+                continue
 
             if not category_selected:
                 sg.popup("Debes seleccionar una categoria")
