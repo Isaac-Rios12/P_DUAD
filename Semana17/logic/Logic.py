@@ -1,3 +1,4 @@
+import os
 
 def load_data(fm, file):
 
@@ -19,3 +20,4 @@ def load_data(fm, file):
         return rows
     except Exception as e:
         print("error al cargar la informacion...")
+
