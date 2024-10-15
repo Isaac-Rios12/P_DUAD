@@ -20,14 +20,17 @@ class Task():
         except Exception as e:
             print(f("Ocurrio un error: {e}"))
 
+    def export_data(self, file):
+        try: 
+            with open(file, 'w', encoding='utf-8') as f:
+                json.dump(self.tareas_list, f, indent=4)
+                print("Agregado...")
+        except Exception as e:
+            print(f("Ocurrio un error: {e}"))
+
     def get_task(self):
         return self.tareas_list
+    
+    def add_task(self, new_task):
+        self.tareas_list.append(new_task)
 
-Tasks = [
-    {
-        "id": "1",
-        "titulo": "Sacar mascotas",
-        "descripcion": "no olvidar",
-        "estado": "por hacer"
-    }
-]
