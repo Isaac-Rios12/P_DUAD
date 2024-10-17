@@ -1,6 +1,7 @@
 import json
 import os
 
+
 class Task():
     def __init__(self):
         self.tareas_list = []
@@ -33,4 +34,17 @@ class Task():
     
     def add_task(self, new_task):
         self.tareas_list.append(new_task)
+
+    def update_task_logic(self, tarea, new_status):
+
+        #exists, tarea = check_id(id, task_instance)
+
+        tarea["estado"] = new_status
+        self.export_data("tareas.json")
+        return {"message": "Estado actualizado correctamente...", "tarea": tarea}, 200
+
+ 
+
+
+
 

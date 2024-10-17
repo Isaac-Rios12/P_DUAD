@@ -3,7 +3,7 @@
         "id": "2",
         "titulo": "New Homework",
         "descripcion": "Description of the new homework",
-        "estado": "Pending"
+        "estado": "sin iniciar"
     },
     {
         "id": "35454453",
@@ -40,5 +40,17 @@
         "titulo": "New Homework",
         "descripcion": "Description of the new homework",
         "estado": "Pending"
+    },
+    {
+        "id": "1234",
+        "titulo": null,
+        "descripcion": "Description of the new homework",
+        "estado": "Por hacer"
+    },
+    {
+        "id": "12345",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "en proceso"
     }
 ]

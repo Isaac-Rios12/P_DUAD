@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from Week1.data import Task
-
-from Week1.logic import check_id, delete
+from Week1.logic import check_id, remove_task, is_valid_status
 
 app = Flask(__name__)
 
@@ -17,8 +16,21 @@ def create_task():
         return jsonify(data)
     else:
         try:
+
             if "id" not in request.json:
                 raise ValueError("Debes ingresar el id")
+            if "titulo" not in request.json:
+                raise ValueError("Debes ingresar el titulo")
+            if "descripcion" not in request.json:
+                raise ValueError("Debes ingresar la descripcion")
+            if "estado" not in request.json:
+                raise ValueError("Debes ingresar el etsado")
+
+            state = request.json.get("estado")
+            state_error = is_valid_status(state)
+            if state_error:
+                return jsonify(state_error), 400
+            
 
             id = request.json['id']
             exists, tarea= check_id(id, task_instance)
@@ -26,10 +38,10 @@ def create_task():
             if not exists:
 
                 new_data = {
-                    "id": request.json["id"],
-                    "titulo": request.json["titulo"],
-                    "descripcion": request.json["descripcion"],
-                    "estado": request.json["estado"]
+                    "id": request.json.get("id"),
+                    "titulo": request.json.get("titulo"),
+                    "descripcion": request.json.get("descripcion"),
+                    "estado": state
                 }
 
                 task_instance.add_task(new_data)
@@ -47,21 +59,36 @@ def create_task():
 
 @app.route('/Tasks/<string:id>', methods=["DELETE"])
 def delete_task(id):
-    print(f"Intentando eliminar la tarea con ID: {id}")  # Agregar log para depuración
-    exists, tarea = check_id(id, task_instance)
     
-    print(f"Existencia de la tarea: {exists}, Tarea: {tarea}")  # Verificar el resultado
+    exists, tarea = check_id(id, task_instance)
 
     if exists:
-        delete(tarea, task_instance)
-        task_instance.export_data("tareas.json")  # Asegúrate de guardar los cambios
+        remove_task(tarea, task_instance)
+        task_instance.export_data("tareas.json")  
         return jsonify(message="Tarea eliminada con éxito"), 200
     else:
-        return jsonify(message="Tarea no encontrada"), 404  # Cambié 400 a 404 para semántica
+        return jsonify(message="Tarea no encontrada"), 404  
 
 
+@app.route('/Tasks/<string:id>', methods=["PATCH"])
+def update_task(id):
 
+    exists, tarea = check_id(id, task_instance)
 
+    if not exists:
+        return jsonify(message="Tarea no encontrada"), 400
+
+    new_status = request.json.get("estado")
+
+    state_error = is_valid_status(new_status)
+    if state_error:
+        return jsonify(state_error), 400
+
+    if tarea["estado"] == new_status:
+        return jsonify(message="No se realizan cambios, estado es el mismo"), 200
+    
+    response = task_instance.update_task_logic(tarea, new_status)
+    return response
 
 
 if __name__ == "__main__":
