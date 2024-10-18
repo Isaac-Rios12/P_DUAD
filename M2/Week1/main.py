@@ -9,7 +9,7 @@ task_instance.import_data("tareas.json")
 
 
 @app.route('/Tasks', methods=["GET", "POST"])
-def manage_tasks():
+def create_task():
 
     if request.method == "GET":
         data = task_instance.get_task()
@@ -86,7 +86,6 @@ def update_task(id):
     if not exists:
         return jsonify(message="Tarea no encontrada"), 400
 
-   
     state_error = is_valid_status(new_status)
     if state_error:
         return jsonify(state_error), 400
