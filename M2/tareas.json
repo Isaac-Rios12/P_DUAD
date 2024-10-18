@@ -51,6 +51,18 @@
         "id": "12345",
         "titulo": "New Homework",
         "descripcion": "Description of the new homework",
-        "estado": "en proceso"
+        "estado": "aceptada"
+    },
+    {
+        "id": "1010",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "aceptada"
+    },
+    {
+        "id": "ssss",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "aceptada"
     }
 ]

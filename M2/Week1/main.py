@@ -9,14 +9,14 @@ task_instance.import_data("tareas.json")
 
 
 @app.route('/Tasks', methods=["GET", "POST"])
-def create_task():
+def manage_tasks():
 
     if request.method == "GET":
         data = task_instance.get_task()
         return jsonify(data)
     else:
         try:
-
+ 
             if "id" not in request.json:
                 raise ValueError("Debes ingresar el id")
             if "titulo" not in request.json:
@@ -59,6 +59,9 @@ def create_task():
 
 @app.route('/Tasks/<string:id>', methods=["DELETE"])
 def delete_task(id):
+
+    if not id or id.strip()=="":
+        return jsonify(message="ID no proporcionado o invalido"), 400
     
     exists, tarea = check_id(id, task_instance)
 
@@ -75,11 +78,15 @@ def update_task(id):
 
     exists, tarea = check_id(id, task_instance)
 
+    new_status = request.json.get("estado")
+
+    if new_status is None or new_status.strip() == "":
+        return jsonify(message="El campo estado es requerido"), 400
+
     if not exists:
         return jsonify(message="Tarea no encontrada"), 400
 
-    new_status = request.json.get("estado")
-
+   
     state_error = is_valid_status(new_status)
     if state_error:
         return jsonify(state_error), 400
