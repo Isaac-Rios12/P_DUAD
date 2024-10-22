@@ -48,12 +48,6 @@
         "estado": "Por hacer"
     },
     {
-        "id": "12345",
-        "titulo": "New Homework",
-        "descripcion": "Description of the new homework",
-        "estado": "aceptada"
-    },
-    {
         "id": "1010",
         "titulo": "New Homework",
         "descripcion": "Description of the new homework",
@@ -61,6 +55,12 @@
     },
     {
         "id": "ssss",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "aceptada"
+    },
+    {
+        "id": "000",
         "titulo": "New Homework",
         "descripcion": "Description of the new homework",
         "estado": "aceptada"
