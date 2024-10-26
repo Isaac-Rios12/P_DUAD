@@ -59,7 +59,7 @@ class TaskAPI(MethodView):
             return jsonify(message=str(ex)), 500
 
 
-    def delete_task(self, id):
+    def delete(self, id):
         if not id or id.strip()=="":
             return jsonify(message="Id no proporcionado o invalido"), 400
         
@@ -72,7 +72,7 @@ class TaskAPI(MethodView):
         else:
             return jsonify(message="Tarea no enconntrada"), 404
 
-    def update_task(self, id):
+    def patch(self, id):
 
         exists, tarea = check_id(id, self.task_instance)
 
@@ -95,13 +95,12 @@ class TaskAPI(MethodView):
         response = self.task_instance.update_task_logic(tarea, new_status)
         return response
 
+def register_api(app, name):
+    task_view = TaskAPI.as_view(f"{name}-item")
+    app.add_url_rule(f"/{name}", view_func=task_view, methods=["GET", "POST"])
+    app.add_url_rule(f"/{name}/<string:id>", view_func=task_view, methods=["DELETE", "PATCH"])
 
-
-task_api = TaskAPI()
-app.add_url_rule('/Tasks', view_func=task_api.get, methods=["GET"])
-app.add_url_rule('/Tasks', view_func=task_api.post, methods=["POST"])
-app.add_url_rule('/Tasks/<string:id>', view_func=task_api.delete_task, methods=["DELETE"])
-app.add_url_rule('/Tasks/<string:id>', view_func=task_api.update_task, methods=["PATCH"])
+register_api(app, "Tasks")
 
 if __name__ == "__main__":
     app.run(host="localhost", debug=True)
