@@ -1,10 +1,10 @@
 from flask import Flask, jsonify, request
-from Week1.data import Task
-from Week1.logic import check_id, remove_task, is_valid_status
+from exercise1.data import TaskManager
+from exercise1.logic import is_valid_status
 
 app = Flask(__name__)
 
-task_instance = Task()
+task_instance = TaskManager()
 task_instance.import_data("tareas.json")
 
 
@@ -12,7 +12,7 @@ task_instance.import_data("tareas.json")
 def create_task():
 
     if request.method == "GET":
-        data = task_instance.get_task()
+        data = task_instance.get_tasks()
         return jsonify(data)
     else:
         try:
@@ -33,7 +33,7 @@ def create_task():
             
 
             id = request.json['id']
-            exists, tarea= check_id(id, task_instance)
+            exists, tarea = task_instance.check_id(id)
 
             if not exists:
 
@@ -63,10 +63,10 @@ def delete_task(id):
     if not id or id.strip()=="":
         return jsonify(message="ID no proporcionado o invalido"), 400
     
-    exists, tarea = check_id(id, task_instance)
+    exists, tarea = task_instance.check_id(id)
 
     if exists:
-        remove_task(tarea, task_instance)
+        task_instance.remove_task(tarea)
         task_instance.export_data("tareas.json")  
         return jsonify(message="Tarea eliminada con éxito"), 200
     else:
@@ -76,7 +76,7 @@ def delete_task(id):
 @app.route('/Tasks/<string:id>', methods=["PATCH"])
 def update_task(id):
 
-    exists, tarea = check_id(id, task_instance)
+    exists, tarea = task_instance.check_id(id)
 
     new_status = request.json.get("estado")
 

@@ -1,22 +1,19 @@
 from flask.views import MethodView
 from flask import Flask, jsonify, request
-from extra_exercise.logic import check_id, is_valid_status, remove_task
-from extra_exercise.data import Task
-
+from extra_exercise.logic import is_valid_status
+from extra_exercise.data import TaskManager
 
 app = Flask(__name__)
-
 
 class TaskAPI(MethodView):
 
     def __init__(self):
-        self.task_instance = Task()
+        self.task_instance = TaskManager()
         self.task_instance.import_data("tareas.json")
 
     def get(self):
-        data = self.task_instance.get_task()
+        data = self.task_instance.get_tasks()
         return jsonify(data)
-
 
     def post(self):
         try:
@@ -36,7 +33,7 @@ class TaskAPI(MethodView):
                 return jsonify(state_error), 400
 
             id = request.json['id']
-            exists, tarea = check_id(id, self.task_instance)
+            exists, tarea = self.task_instance.check_id(id)
 
             if not exists:
                 new_data = {
@@ -48,33 +45,31 @@ class TaskAPI(MethodView):
 
                 self.task_instance.add_task(new_data)
                 self.task_instance.export_data("tareas.json")
-                return jsonify(message="Tarea agregada con eexito"), 200
+                return jsonify(message="Tarea agregada con éxito"), 201
             
             else:
                 return jsonify(message="Id de tarea ya existe"), 400
-            
+
         except ValueError as ex:
             return jsonify(message=str(ex)), 400
-        except ValueError as ex:
+        except Exception as ex:
             return jsonify(message=str(ex)), 500
 
-
     def delete(self, id):
-        if not id or id.strip()=="":
-            return jsonify(message="Id no proporcionado o invalido"), 400
+        if not id or id.strip() == "":
+            return jsonify(message="Id no proporcionado o inválido"), 400
         
-        exists, tarea = check_id(id, self.task_instance)
+        exists, tarea = self.task_instance.check_id(id)
 
         if exists:
-            remove_task(tarea, self.task_instance)
+            self.task_instance.remove_task(tarea)
             self.task_instance.export_data("tareas.json")
-            return jsonify(message="tarea eliminadaa....."), 200
+            return jsonify(message="Tarea eliminada con éxito"), 200
         else:
-            return jsonify(message="Tarea no enconntrada"), 404
+            return jsonify(message="Tarea no encontrada"), 404
 
     def patch(self, id):
-
-        exists, tarea = check_id(id, self.task_instance)
+        exists, tarea = self.task_instance.check_id(id)
 
         new_status = request.json.get("estado")
 
@@ -82,7 +77,7 @@ class TaskAPI(MethodView):
             return jsonify(message="El campo estado es requerido"), 400
 
         if not exists:
-            return jsonify(message="La tarea no existe"), 400
+            return jsonify(message="Tarea no encontrada"), 404
 
         state_error = is_valid_status(new_status)
 
@@ -104,7 +99,3 @@ register_api(app, "Tasks")
 
 if __name__ == "__main__":
     app.run(host="localhost", debug=True)
-
-
-
-
