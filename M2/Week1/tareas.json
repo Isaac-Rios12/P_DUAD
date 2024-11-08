@@ -1,0 +1,74 @@
+[
+    {
+        "id": "2",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "sin iniciar"
+    },
+    {
+        "id": "35454453",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "Pending"
+    },
+    {
+        "id": "11111",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "Pending"
+    },
+    {
+        "id": "11111",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "Pending"
+    },
+    {
+        "id": "11111",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "Pending"
+    },
+    {
+        "id": "111144444441",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "Pending"
+    },
+    {
+        "id": "54654654546465644656546565",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "Pending"
+    },
+    {
+        "id": "1234",
+        "titulo": null,
+        "descripcion": "Description of the new homework",
+        "estado": "Por hacer"
+    },
+    {
+        "id": "1010",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "aceptada"
+    },
+    {
+        "id": "ssss",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "aceptada"
+    },
+    {
+        "id": "000",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "aceptada"
+    },
+    {
+        "id": "99",
+        "titulo": "New Homework",
+        "descripcion": "Description of the new homework",
+        "estado": "aceptada"
+    }
+]
