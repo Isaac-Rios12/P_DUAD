@@ -1,0 +1,14 @@
+[
+    {
+        "id_user": 1,
+        "name_user": "John Doe",
+        "email": "john.doe@example.com",
+        "age": 25
+    },
+    {
+        "id_user": 2,
+        "name_user": "Jane Smith",
+        "email": "jane.smith@example.com",
+        "age": 30
+    }
+]
