@@ -22,58 +22,68 @@ class UserHandler:
         self.user_list = {}
  
     def get_all_users(self):
-        
         return [user.to_dict() for user in self.user_list.values()]
 
     def get_user(self, id_user):
-        return self.user_list.get(id_user)
+        user =  self.user_list.get(id_user)
+        return user.to_dict() if user else None
     
-    def validate_user(self, id_user, name_user, email, age):
+    def validate_user(self, id_user, name_user, age):
 
         if not isinstance(id_user, int) or id_user <= 0:
-            return {"message": "Error, el ID de usuario debe ser un número entero positivo"}, 400
-         
+            raise ValueError("El ID de usuario debe ser un número entero positivo")
+
         if not isinstance(name_user, str) or not name_user.strip():
-            return {"message": "Error, el nombre de usuario no es válido"}, 400
+            raise ValueError("El nombre de usuario no es válido")
 
         if not isinstance(age, int) or not (0 < age < 100):
-            return {"message": "Error, la edad debe ser un número entre 1 y 99 años"}, 400
+            raise ValueError("La edad debe ser un número entre 1 y 99 años")
 
         return None
 
-    def add_new_user(self, id_user, name_user, email, age):
+    def add_new_user(self, file_path, id_user, name_user, email, age):
 
-        validation = self.validate_user(id_user, name_user, age)
+        try:
+            #validation = self.validate_user(id_user, name_user, age)
+            self.validate_user(id_user, name_user, age)
+            #if validation:
+                
 
-        if validation:
-            return validation
-        
-        if id_user in self.user_list:
-            return {"message": "El usuario se encuentra registrado"}, 400
-        
-        user = User(id_user, name_user, email, age)
-        self.user_list[id_user] = user
-        self.export_data("users.json")
-        return {"message": "Usuario registrado correctamente", "user": vars(user)}, 201
-    
+            if id_user in self.user_list:
+                return {"message": "El usuario se encuentra registrado"}, 400
 
-    def delete_user(self, id_user):
+            
+            user = User(id_user, name_user, email, age)
+            self.user_list[id_user] = user
+
+            self.export_data(file_path)
+
+            return {"message": "Usuario registrado correctamente", "user": vars(user)}, 201
+
+        except ValueError as ve:
+            return {"error": f"Error de validación: {str(ve)}"}, 400
+
+        except Exception as e:
+            return {"error": f"Error inesperado: {str(e)}"}, 500
+
+    def delete_user(self, file_path,  id_user):
 
         if not isinstance(id_user, int) or id_user <= 0:
             return {"message": "Error, el ID de usuario debe ser un número entero positivo"}, 400
 
         if id_user in self.user_list:
             del self.user_list[id_user]
-            self.export_data("users.json")
+            self.export_data(file_path)
             return {"message": f"El Usuario {id_user} ha sido eliminado"}, 200
 
         else: 
             return {"message": f"El Usuario {id_user} no existe en el registro"}, 404
         
 
-    def update_user(self, id_user, new_name, new_email, new_age):
+    def update_user(self, file_path, id_user, new_name, new_email, new_age):
 
         validation = self.validate_user(id_user, new_name, new_age)
+
         if validation:
             return validation
 
@@ -82,26 +92,21 @@ class UserHandler:
         if not user:
             return {"message": "Error, usuario no encontrado"}, 404
             
-        user.name_user = new_name
-        user.email = new_email
-        user.age = new_age
+        user["name_user"] = new_name
+        user["email"] = new_email
+        user["age"] = new_age
 
-        self.export_data("users.json")
+        self.export_data(file_path)
 
-        return {"message": f"Usuario {id_user} actualizado correctamente", "user": vars(user)}, 200
+        return user, 200
 
     def read_data(self, file):
         try:
 
-            current_dir = os.path.dirname(__file__)  # Directorio actual de user.py
-            parent_dir = os.path.dirname(current_dir)  # Subir un nivel para salir de 'models'
-            data_dir = os.path.join(parent_dir, 'data')  # Acceder a 'data' en el nivel superior
-            file_path = os.path.join(data_dir, file)
-
-            if not os.path.exists(file_path):
+            if not os.path.exists(file):
                 raise FileNotFoundError(f"Archivo no encontrado: {file}")
 
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 saved_data = json.load(f)
                 self.user_list = {user_data['id_user']: User(**user_data) for user_data in saved_data}
 
@@ -124,4 +129,4 @@ class UserHandler:
 
 
 
-# estaba aca implemetnado el read, ya lee los datos, ahora esta la duda con la rutaaa
+
