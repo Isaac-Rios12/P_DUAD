@@ -95,6 +95,7 @@ def register_api(app, name):
     app.add_url_rule(f"/{name}", view_func=task_view, methods=["GET", "POST"])
     app.add_url_rule(f"/{name}/<string:id>", view_func=task_view, methods=["DELETE", "PATCH"])
 
+
 register_api(app, "Tasks")
 
 if __name__ == "__main__":
