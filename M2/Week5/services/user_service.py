@@ -19,12 +19,11 @@ class UserManager:
                 results = self.db_manager.execute_query(query, user_id)
                 if results:
                     return results[0]
-                else:
-                    return None
-            else:  
-                results = self.db_manager.execute_query("SELECT * FROM lyfter_car_rental.users;")
-                self.db_manager.close_connection()
-                return (results)
+                return None
+              
+            results = self.db_manager.execute_query("SELECT * FROM lyfter_car_rental.users;")
+            self.db_manager.close_connection()
+            return (results)
         except Exception as e:
             return ("Error", e)
         
@@ -70,7 +69,7 @@ class UserManager:
                 """
             results = self.db_manager.execute_query(query, new_status, user_id)
             
-            
+            #revisar 
             if "rows affected" in results and int(results.split()[3]) > 0:
                 return f"User {user_id} status updated to {new_status}"
             else:

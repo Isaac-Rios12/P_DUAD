@@ -7,25 +7,34 @@ class VehicleAPI(MethodView):
         self.vehicle_instance = VehicleManager()
 
     def get(self):
+
         try:
             filters = request.args.to_dict()
 
-            if not filters or "id" in filters:
-                vehicle_id = filters.get("id", None)
-                if not vehicle_id.isdigit():
-                    return {"Error": "El valor del id dever ser numero entero"}, 400
-                all_vehicles = self.vehicle_instance.get_cars(vehicle_id)
-                return jsonify(all_vehicles), 200
-
+            if not filters:
+                all_vehicles = self.vehicle_instance.get_cars()
+                return all_vehicles
             
-            vehicle = self.vehicle_instance.filter_vehicle(filters)
-            if vehicle:  
-                return jsonify(vehicle), 200
-            else: 
-                return jsonify({"error": "No vehicle found with the given criteria"}), 404
+            if "id" in filters:
+                vehicle_id = filters["id"]
+                try:
+                    vehicle_id = int(vehicle_id)
+                except ValueError:
+                    return jsonify({"Error": "Id value must be integer"}), 400
+                   
+                get_vehicle =  self.vehicle_instance.get_cars(vehicle_id)
+                if get_vehicle:
+                    return jsonify(get_vehicle), 200
+                return jsonify({"Error": "Vehicle not found"}), 404
             
+           
+            filtered_vehicles = self.vehicle_instance.filter_vehicle(filters)
+            if filtered_vehicles:
+                return jsonify(filtered_vehicles), 200
+            return jsonify({"Error": "Not vehicle found with the given criteria..."}), 404
+    
         except Exception as e:
-            return jsonify({"Error": str({e})}), 400
+            return jsonify({"Error": str({e})}), 500
         
 
     def post(self):

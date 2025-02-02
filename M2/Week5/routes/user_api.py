@@ -11,16 +11,28 @@ class UserAPI(MethodView):
     def get(self):
         try:
             filters = request.args.to_dict()
+
             if not filters:
-                data = self.user_instance.get_users()
-                return jsonify(data), 200
+                all_users = self.user_instance.get_users()
+                return jsonify(all_users), 200
             
-            user = self.user_instance.filter_user(filters)
-            if user:  
-                return jsonify(user), 200
-            else:  
-                return jsonify({"error": "No vehicle found with the given criteria"}), 404
+            if "id" in filters:
+                user_id = filters["id"]
+                try:
+                    user_id = int(user_id)
+                except ValueError:
+                    return jsonify({"Error": "Id value mist be integer"}), 400
             
+                get_user = self.user_instance.get_users(user_id)
+                if get_user:  
+                    return jsonify(get_user), 200
+                return jsonify({"error": "User not exist"}), 404
+            
+            filtered_users = self.user_instance.filter_user(filters)
+            if filtered_users:
+                return jsonify(filtered_users), 200
+            return jsonify({"Error": "Not user found with the given criteria"})
+
         except Exception as e:
             return jsonify({"error": str({e})}), 400
         
