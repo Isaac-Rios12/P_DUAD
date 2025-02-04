@@ -67,17 +67,10 @@ class UserManager:
                     WHERE id = %s
                 """
             results = self.db_manager.execute_query(query, new_status, user_id)
-            
-            #revisar 
-            # if "rows affected" in results and int(results.split()[3]) > 0:
-            #     return f"User {user_id} status updated to {new_status}"
-            # else:
-            #     return f"User {user_id} not found or status unchanged."
 
             if self.db_manager.cursor.rowcount > 0:
                 return f"User {user_id} status uptaded to {new_status}"
             return f"user {user_id} not found or not status unchaged.."
-
 
         except Exception as e:
             return f"error: {str(e)}"

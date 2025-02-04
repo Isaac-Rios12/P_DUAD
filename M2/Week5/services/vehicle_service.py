@@ -18,12 +18,9 @@ class VehicleManager:
                             JOIN lyfter_car_rental.vehicle_model m ON v.model_id = m.id
                             WHERE v.id = %s
                         """
-                #query = "SELECT * FROM lyfter_car_rental.vehicles WHERE id = %s"
                 results = self.db_manager.execute_query(query, vehicle_id)
                 self.db_manager.close_connection()
 
-                # if not results:
-                #     return f"Error: usuario no encontrado"
                 return results
             
             query = """
