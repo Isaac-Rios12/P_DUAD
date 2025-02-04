@@ -1,6 +1,8 @@
 from flask.views import MethodView
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 from services.rental_service import VehicleRental
+
+rental_blueprint = Blueprint('rental_blueprint', __name__)
 
 class RentalAPI(MethodView):
     def __init__(self):
@@ -16,9 +18,8 @@ class RentalAPI(MethodView):
                 if all_rentals:
                     return jsonify(all_rentals), 200
             if "id" in filters:
-                rental_id = filters['id']
                 try:
-                    rental_id = int(rental_id)
+                    rental_id = int(filters['id'])
                 except ValueError:
                     return jsonify({"Error": "Id must be integer"}), 400
                 
@@ -47,7 +48,7 @@ class RentalAPI(MethodView):
             new_status = request.json['status']
             check_status = self.rental_instance.verify_status(new_status)
 
-            if check_status:
+            if check_status is not None:
                 return jsonify({"Error": f"Invalid status {new_status}"}), 400
             
             new_rental = self.rental_instance.create_rental(
@@ -78,7 +79,7 @@ class RentalAPI(MethodView):
                 return jsonify({"Error": "status is required"}), 400
             
             check_status = self.rental_instance.verify_status(new_status)
-            if check_status:
+            if check_status is not None:
                 return jsonify({"Error": check_status}), 400
             
             change_status = self.rental_instance.modify_rental_status(rental_id, new_status.capitalize())
@@ -88,4 +89,8 @@ class RentalAPI(MethodView):
             return jsonify({"Message": change_status}), 200
         
         except Exception as e:
-            return jsonify(str(e))
+            return jsonify({"Error": str(e)}), 500
+        
+
+rental_blueprint.add_url_rule('/rentals', view_func=RentalAPI.as_view('rental_list'), methods=['GET', 'POST'])
+rental_blueprint.add_url_rule('/rentals/<int:rental_id>', view_func=RentalAPI.as_view('rental_detail'), methods=['PATCH'])

@@ -1,6 +1,8 @@
 from flask.views import MethodView
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 from services.vehicle_service import VehicleManager
+
+vehicle_blueprint = Blueprint("vehicle_blueprint", __name__)
 
 class VehicleAPI(MethodView):
     def __init__(self):
@@ -13,7 +15,7 @@ class VehicleAPI(MethodView):
 
             if not filters:
                 all_vehicles = self.vehicle_instance.get_cars()
-                return all_vehicles
+                return jsonify(all_vehicles), 200
             
             if "id" in filters:
                 vehicle_id = filters["id"]
@@ -47,16 +49,15 @@ class VehicleAPI(MethodView):
                 
             new_status = request.json["status"]
                 
-            
             check_status = self.vehicle_instance.verify_status(new_status)
 
             if check_status:
-                return {"error": check_status}, 400
+                return jsonify({"error": check_status}), 400
                 
             new_vehicle = self.vehicle_instance.create_vehicle(
                 request.json["vin"],
                 request.json["model_id"],
-                new_status.lower()
+                new_status.capitalize()
             )
 
             if "error" in new_vehicle:
@@ -80,10 +81,16 @@ class VehicleAPI(MethodView):
             check_status = self.vehicle_instance.verify_status(new_status)
 
             if check_status:
-                return {"error": check_status}, 400
+                return jsonify({"error": check_status}), 400
 
             change_status = self.vehicle_instance.modify_vehicle_status(vehicle_id, new_status)
             return jsonify({"message": change_status}), 200
 
         except Exception as e:
             return jsonify({"error": str(e)}), 400
+        
+
+vehicle_blueprint.add_url_rule('/vehicles', view_func=VehicleAPI.as_view('vehicle_list'), methods=['GET', 'POST'])
+vehicle_blueprint.add_url_rule('/vehicles/<int:vehicle_id>', view_func=VehicleAPI.as_view('vehicle_detail'), methods=['PATCH'] )  
+
+

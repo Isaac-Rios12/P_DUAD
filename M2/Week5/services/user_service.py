@@ -35,10 +35,9 @@ class UserManager:
             result = self.db_manager.execute_query(query, (filter_value))
             self.db_manager.close_connection()
 
-            if result:
+            if not "error" in result:
                 return result
-            else:
-                raise ValueError(f"No se encontraron usuarios con {filter_key} = {filter_value}")
+            return None
         
         except ValueError as e:
             raise e
@@ -50,7 +49,7 @@ class UserManager:
                     INSERT INTO lyfter_car_rental.users (name, email, username, password, birth_date, status)
                     VALUES (%s, %s, %s, %s, %s, %s)
                     """
-            results = self.db_manager.execute_query(query, name, email, username, password, birth_date, account_status) 
+            results = self.db_manager.execute_query(query, name, email, username, password, birth_date, account_status.capitalize()) 
             self.db_manager.close_connection()
 
             if self.db_manager.cursor.rowcount > 0:
@@ -70,19 +69,23 @@ class UserManager:
             results = self.db_manager.execute_query(query, new_status, user_id)
             
             #revisar 
-            if "rows affected" in results and int(results.split()[3]) > 0:
-                return f"User {user_id} status updated to {new_status}"
-            else:
-                return f"User {user_id} not found or status unchanged."
+            # if "rows affected" in results and int(results.split()[3]) > 0:
+            #     return f"User {user_id} status updated to {new_status}"
+            # else:
+            #     return f"User {user_id} not found or status unchanged."
+
+            if self.db_manager.cursor.rowcount > 0:
+                return f"User {user_id} status uptaded to {new_status}"
+            return f"user {user_id} not found or not status unchaged.."
 
 
         except Exception as e:
             return f"error: {str(e)}"
         
     def verify_status(self, status):
-        allowed_status = ['active', 'blacklisted', 'debtor']
+        allowed_status = ['Active', 'Blacklisted', 'Debtor']
 
-        if status.lower() not in allowed_status:
+        if status.capitalize() not in allowed_status:
             return f"{status} not allowed....      Allowed {allowed_status}"
         
 

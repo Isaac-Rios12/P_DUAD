@@ -2,6 +2,7 @@ from flask.views import MethodView
 from flask import Flask, jsonify, request, Blueprint
 from services.user_service import UserManager
 
+user_blueprint = Blueprint('user_blueprint', __name__)
 
 class UserAPI(MethodView):
 
@@ -17,11 +18,10 @@ class UserAPI(MethodView):
                 return jsonify(all_users), 200
             
             if "id" in filters:
-                user_id = filters["id"]
                 try:
-                    user_id = int(user_id)
+                    user_id = int(filters['id'])
                 except ValueError:
-                    return jsonify({"Error": "Id value mist be integer"}), 400
+                    return jsonify({"Error": "Id value must be integer"}), 400
             
                 get_user = self.user_instance.get_users(user_id)
                 if get_user:  
@@ -90,6 +90,10 @@ class UserAPI(MethodView):
 
         except Exception as e:
             return jsonify({"error": str({e})}), 400
+        
+
+user_blueprint.add_url_rule('/users', view_func=UserAPI.as_view('users_list'), methods=['GET', 'POST'])
+user_blueprint.add_url_rule('/users', view_func=UserAPI.as_view('user_detail'), methods=['PATCH'])
             
         
         

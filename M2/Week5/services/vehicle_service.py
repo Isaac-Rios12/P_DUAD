@@ -45,10 +45,10 @@ class VehicleManager:
             result = self.db_manager.execute_query(query, (filter_value))
             self.db_manager.close_connection()
 
-
-            if result:
+            if not "error" in result:
                 return result
             return None
+            
         
         except Exception as e:
             return ("error", e)
@@ -73,19 +73,10 @@ class VehicleManager:
         
 
 
-        """
-        quedo aca, estoy aun con los servicios y apis de vehicles.....
-
-
-        """
 
     def modify_vehicle_status(self, vehicle_id, new_status):
         try:
 
-            # check_status = self.verify_status(new_status)
-
-            # if check_status:
-            #     return {"error": check_status}, 400
             
             query = """
                     UPDATE lyfter_car_rental.vehicles 
@@ -96,19 +87,17 @@ class VehicleManager:
             results = self.db_manager.execute_query(query, new_status, vehicle_id)
             print(f"Query results: {results}")
 
-            if "rows affected" in results and int(results.split()[3]) > 0:
-                return f"Vehicle {vehicle_id} status updated to {new_status}"
-            else:
-                return f"Vehicle {vehicle_id} not found or status unchanged."
+            if self.db_manager.cursor.rowcount > 0:
+                return f"Modified vehicle"
 
         except Exception as e:
             print(f"Error updating vehicle status: {str(e)}")
             return f"error: {str(e)}"
         
     def verify_status(self, status):
-        availables_status = ['available', 'rented', 'reserved', 'under maintance', 'damaged']
+        availables_status = ['Available', 'Rented', 'Reserved', 'Under maintenance', 'Damaged']
 
-        if status.lower() not in availables_status:
+        if status.capitalize() not in availables_status:
             return f"{status} status not allowed... Allowed={availables_status}"
 
 

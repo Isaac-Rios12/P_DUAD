@@ -24,18 +24,18 @@ class VehicleRental:
             if results:
                 return results
         except Exception as e:
-            return ("Error", e)
+            return {"Error": str(e)}
         
     def filter_rental(self, filters):
         try:
             filter_key, filter_value = next(iter(filters.items()))
             query = f"SELECT * FROM lyfter_car_rental.rentals WHERE {filter_key} = %s"
-            result = self.db_manager.execute_query(query, filter_value.capitalize())
-            if result:
+            result = self.db_manager.execute_query(query, filter_value.capitalize)
+            if not "error" in result:
                 return result
             return None
         except Exception as e:
-            return ("Error", e)
+            return {"Error": str(e)}
         
     def create_rental(self, status, vehicle_id, user_id, return_date):
         try:
@@ -50,7 +50,7 @@ class VehicleRental:
             return results
         
         except Exception as e:
-            return ("Error", e)
+            return {"Error": str(e)}
         
     def modify_rental_status(self, rental_id, new_status):
         try:
@@ -66,7 +66,7 @@ class VehicleRental:
             return f"Error {results}"
         
         except Exception as e:
-            return f"Error: {str(e)}" 
+            return {"Error": str(e)}
 
 
     def verify_status(self, status):
