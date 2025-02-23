@@ -155,7 +155,7 @@ WHERE id = 3
 
 
 SELECT * FROM lyfter_car_rental.vehicles
-WHERE status = 'In use'
+WHERE status = 'in-use'
 
 
 SELECT * FROM lyfter_car_rental.vehicles

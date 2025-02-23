@@ -9,7 +9,21 @@ class VehicleManager:
             host = "localhost"
         )
 
-    def get_cars(self, vehicle_id=None):
+    def get_all_vehicles(self):
+        try:
+            query = """
+                        SELECT v.*, m.*
+                        FROM lyfter_car_rental.vehicles v
+                        JOIN lyfter_car_rental.vehicle_model m ON v.model_id = m.id
+                        """
+            results = self.db_manager.execute_query(query)
+            if results:
+                return results
+            return None
+        except Exception as e:
+            return {"Error": str(e)}
+
+    def get_car_by_id(self, vehicle_id):
         try:
             if vehicle_id:
                 query = """
@@ -19,18 +33,9 @@ class VehicleManager:
                             WHERE v.id = %s
                         """
                 results = self.db_manager.execute_query(query, vehicle_id)
-                self.db_manager.close_connection()
-
-                return results
-            
-            query = """
-                        SELECT v.*, m.*
-                        FROM lyfter_car_rental.vehicles v
-                        JOIN lyfter_car_rental.vehicle_model m ON v.model_id = m.id
-                        """
-            results = self.db_manager.execute_query(query)
-            self.db_manager.close_connection()
-            return (results)
+                if results:
+                    return results
+                return None
         except Exception as e:
             return ("Error", e)
         
@@ -58,7 +63,7 @@ class VehicleManager:
                     VALUES (%s, %s, %s) 
 
                     """
-            results = self.db_manager.execute_query(query, vin, model_id, status)
+            results = self.db_manager.execute_query(query, vin, model_id, status.lower())
             self.db_manager.close_connection()
 
             if self.db_manager.cursor.rowcount > 0:
@@ -81,7 +86,7 @@ class VehicleManager:
                     WHERE id = %s
                     """
             
-            results = self.db_manager.execute_query(query, new_status, vehicle_id)
+            results = self.db_manager.execute_query(query, new_status.lower(), vehicle_id)
             print(f"Query results: {results}")
 
             if self.db_manager.cursor.rowcount > 0:
@@ -92,9 +97,9 @@ class VehicleManager:
             return f"error: {str(e)}"
         
     def verify_status(self, status):
-        availables_status = ['Available', 'Rented', 'Reserved', 'Under maintenance', 'Damaged']
+        availables_status = ['available', 'rented', 'reserved', 'maintenance', 'damaged']
 
-        if status.capitalize() not in availables_status:
+        if status.lower() not in availables_status:
             return f"{status} status not allowed... Allowed={availables_status}"
 
 

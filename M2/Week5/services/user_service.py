@@ -11,19 +11,25 @@ class UserManager:
             password="postgre",
             host="localhost"
         )
+    
+    def get_all_users(self):
+        try:
+            results = self.db_manager.execute_query("SELECT * FROM lyfter_car_rental.users;")
+            if results:
+                return results
+        except Exception as e:
+            return{"Error", e}
 
-    def get_users(self, user_id=None):
+
+    def get_user_by_id(self, user_id):
         try:
             if user_id:
                 query = "SELECT * FROM lyfter_car_rental.users WHERE id = %s"
                 results = self.db_manager.execute_query(query, user_id)
                 if results:
-                    return results[0]
+                    return results
                 return None
-              
-            results = self.db_manager.execute_query("SELECT * FROM lyfter_car_rental.users;")
             self.db_manager.close_connection()
-            return (results)
         except Exception as e:
             return ("Error", e)
         
@@ -49,7 +55,7 @@ class UserManager:
                     INSERT INTO lyfter_car_rental.users (name, email, username, password, birth_date, status)
                     VALUES (%s, %s, %s, %s, %s, %s)
                     """
-            results = self.db_manager.execute_query(query, name, email, username, password, birth_date, account_status.capitalize()) 
+            results = self.db_manager.execute_query(query, name, email, username, password, birth_date, account_status.lower()) 
             self.db_manager.close_connection()
 
             if self.db_manager.cursor.rowcount > 0:
@@ -66,7 +72,7 @@ class UserManager:
                     SET status = %s
                     WHERE id = %s
                 """
-            results = self.db_manager.execute_query(query, new_status, user_id)
+            results = self.db_manager.execute_query(query, new_status.lower(), user_id)
 
             if self.db_manager.cursor.rowcount > 0:
                 return f"User {user_id} status uptaded to {new_status}"
@@ -76,9 +82,9 @@ class UserManager:
             return f"error: {str(e)}"
         
     def verify_status(self, status):
-        allowed_status = ['Active', 'Blacklisted', 'Debtor']
+        allowed_status = ['active','inactive', 'blacklisted', 'debtor']
 
-        if status.capitalize() not in allowed_status:
+        if status.lower() not in allowed_status:
             return f"{status} not allowed....      Allowed {allowed_status}"
         
 

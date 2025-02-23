@@ -4,7 +4,7 @@ from services.user_service import UserManager
 
 user_blueprint = Blueprint('user_blueprint', __name__)
 
-class UserAPI(MethodView):
+class UserListAPI(MethodView):
 
     def __init__(self):
         self.user_instance = UserManager()
@@ -12,31 +12,14 @@ class UserAPI(MethodView):
     def get(self):
         try:
             filters = request.args.to_dict()
+            users = self.user_instance.filter_user(filters) if filters else self.user_instance.get_all_users()
 
-            if not filters:
-                all_users = self.user_instance.get_users()
-                return jsonify(all_users), 200
-            
-            if "id" in filters:
-                try:
-                    user_id = int(filters['id'])
-                except ValueError:
-                    return jsonify({"Error": "Id value must be integer"}), 400
-            
-                get_user = self.user_instance.get_users(user_id)
-                if get_user:  
-                    return jsonify(get_user), 200
-                return jsonify({"error": "User not exist"}), 404
-            
-            filtered_users = self.user_instance.filter_user(filters)
-            if filtered_users:
-                return jsonify(filtered_users), 200
-            return jsonify({"Error": "Not user found with the given criteria"})
-
+            if users:
+                return jsonify(users), 200
+            return jsonify({"Error": "No users found"}), 404
         except Exception as e:
-            return jsonify({"error": str({e})}), 400
-        
-
+            return jsonify({"Error": str(e)}), 500
+    
     def post(self):
         try:
             required_fields = ["name", "email", "username", "password", "birth_date", "status"]
@@ -44,7 +27,7 @@ class UserAPI(MethodView):
             for field in required_fields:
                 if field not in request.json:
                     return jsonify({"error": f"{field} is required"}), 400
-            new_status = request.json['status']
+            new_status = request.json['status'].lower()
             check_status = self.user_instance.verify_status(new_status)
 
             if check_status:
@@ -67,15 +50,30 @@ class UserAPI(MethodView):
         except Exception as e:
             return jsonify({"error": f"An error occurred: {str(e)}"}), 500
         
+        
+class UserDetailAPI(MethodView):
+
+    def __init__(self):
+        self.user_instance = UserManager()
+
+    def get(self, user_id):
+        try:
+            user = self.user_instance.get_user_by_id(user_id)
+            if user:
+                return jsonify(user), 200
+            return jsonify({"Error": "Not user found with the given criteria"})
+        except Exception as e:
+            return jsonify({"error": str({e})}), 400
+    
     def patch(self, user_id):
 
         try:
 
-            user = self.user_instance.get_users(user_id)
+            user = self.user_instance.get_user_by_id(user_id)
             if not user:
                 return jsonify({"error": "User not found"}), 404
             
-            new_status = request.json.get("status")
+            new_status = request.json.get("status").lower() if request.json.get("status") else None
 
             if not new_status:
                 return jsonify({"error": "status is required"}), 400
@@ -92,8 +90,8 @@ class UserAPI(MethodView):
             return jsonify({"error": str({e})}), 400
         
 
-user_blueprint.add_url_rule('/users', view_func=UserAPI.as_view('users_list'), methods=['GET', 'POST'])
-user_blueprint.add_url_rule('/users', view_func=UserAPI.as_view('user_detail'), methods=['PATCH'])
+user_blueprint.add_url_rule('/users', view_func=UserListAPI.as_view('users_list'), methods=['GET', 'POST'])
+user_blueprint.add_url_rule('/users/<int:user_id>', view_func=UserDetailAPI.as_view('user_detail'), methods=['GET','PATCH'])
             
         
         

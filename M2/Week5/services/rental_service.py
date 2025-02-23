@@ -10,7 +10,17 @@ class VehicleRental:
 
         )
 
-    def get_rentals(self, rental_id=None):
+    def get_all_rentals(self):
+        try:
+            query = "SELECT * FROM lyfter_car_rental.rentals"
+            results = self.db_manager.execute_query(query)
+            if results:
+                return results           
+        except Exception as e:
+            return {"Error": str(e)}
+
+
+    def get_rental_by_id(self, rental_id):
         try:
             if rental_id:
                 query = "SELECT * FROM lyfter_car_rental.rentals WHERE id = %s"
@@ -18,11 +28,6 @@ class VehicleRental:
                 if results:
                     return results
                 return None
-            
-            query = "SELECT * FROM lyfter_car_rental.rentals"
-            results = self.db_manager.execute_query(query)
-            if results:
-                return results
         except Exception as e:
             return {"Error": str(e)}
         
@@ -30,7 +35,7 @@ class VehicleRental:
         try:
             filter_key, filter_value = next(iter(filters.items()))
             query = f"SELECT * FROM lyfter_car_rental.rentals WHERE {filter_key} = %s"
-            result = self.db_manager.execute_query(query, filter_value.capitalize)
+            result = self.db_manager.execute_query(query, filter_value)
             if not "error" in result:
                 return result
             return None
@@ -43,7 +48,7 @@ class VehicleRental:
                     INSERT INTO lyfter_car_rental.rentals (status, vehicle_id, user_id, return_date)
                     VALUES (%s, %s, %s, %s)
                     """
-            results = self.db_manager.execute_query(query, status, vehicle_id, user_id, return_date)
+            results = self.db_manager.execute_query(query, status.lower(), vehicle_id, user_id, return_date)
 
             if self.db_manager.cursor.rowcount > 0:
                 return f"Rental created succesfully for user {user_id} with vehicle {vehicle_id}"
@@ -70,8 +75,9 @@ class VehicleRental:
 
 
     def verify_status(self, status):
-        allowed_status = ['Reserved', 'In progress', 'Completed', 'Canceled', 'Overdue']
-        if status.capitalize() not in allowed_status:
-            return f"{status} not allowed...     Allowed: {allowed_status}"        
+        allowed_status = ['reserved', 'in-progress', 'completed', 'canceled', 'overdue']
+        if status.lower() not in allowed_status:
+            return f"{status} not allowed... Allowed: {allowed_status}"
+        return None       
 
         

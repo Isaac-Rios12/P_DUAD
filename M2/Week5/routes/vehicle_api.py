@@ -4,41 +4,21 @@ from services.vehicle_service import VehicleManager
 
 vehicle_blueprint = Blueprint("vehicle_blueprint", __name__)
 
-class VehicleAPI(MethodView):
+class VehicleListAPI(MethodView):
     def __init__(self):
         self.vehicle_instance = VehicleManager()
 
     def get(self):
-
         try:
             filters = request.args.to_dict()
+            users = self.vehicle_instance.filter_vehicle(filters) if filters else self.vehicle_instance.get_all_vehicles()
 
-            if not filters:
-                all_vehicles = self.vehicle_instance.get_cars()
-                return jsonify(all_vehicles), 200
-            
-            if "id" in filters:
-                vehicle_id = filters["id"]
-                try:
-                    vehicle_id = int(vehicle_id)
-                except ValueError:
-                    return jsonify({"Error": "Id value must be integer"}), 400
-                   
-                get_vehicle =  self.vehicle_instance.get_cars(vehicle_id)
-                if get_vehicle:
-                    return jsonify(get_vehicle), 200
-                return jsonify({"Error": "Vehicle not found"}), 404
-            
-           
-            filtered_vehicles = self.vehicle_instance.filter_vehicle(filters)
-            if filtered_vehicles:
-                return jsonify(filtered_vehicles), 200
-            return jsonify({"Error": "Not vehicle found with the given criteria..."}), 404
-    
+            if users:
+                return jsonify(users), 200
+            return jsonify({"Error": "No vehicles found"})
         except Exception as e:
-            return jsonify({"Error": str({e})}), 500
+            return jsonify({"Error": str(e)}), 500
         
-
     def post(self):
         try:
             required_fields = ["vin", "model_id", "status"]
@@ -47,7 +27,7 @@ class VehicleAPI(MethodView):
                 if field not in request.json:
                     return jsonify({"Error": f"{field} is required"}), 400
                 
-            new_status = request.json["status"]
+            new_status = request.json["status"].lower()
                 
             check_status = self.vehicle_instance.verify_status(new_status)
 
@@ -57,7 +37,7 @@ class VehicleAPI(MethodView):
             new_vehicle = self.vehicle_instance.create_vehicle(
                 request.json["vin"],
                 request.json["model_id"],
-                new_status.capitalize()
+                new_status
             )
 
             if "error" in new_vehicle:
@@ -68,13 +48,29 @@ class VehicleAPI(MethodView):
         except Exception as e:
             return jsonify({"error": f"An error occurred: {str(e)}"}), 500
         
+
+class VehicleDetailAPI(MethodView):
+    def __init__(self):
+        self.vehicle_instance = VehicleManager()
+
+    def get(self, vehicle_id):
+
+        try:
+            vehicle = self.vehicle_instance.get_car_by_id(vehicle_id)
+            if vehicle:
+                return jsonify(vehicle), 200
+            return jsonify({"Error": "Not vehicle found with the given criteria"})
+    
+        except Exception as e:
+            return jsonify({"Error": str({e})}), 500
+    
     def patch(self, vehicle_id):
         try:
-            vehicle = self.vehicle_instance.get_cars(vehicle_id)
+            vehicle = self.vehicle_instance.get_car_by_id(vehicle_id)
             if not vehicle:
                 return jsonify({"error": "Vehicle not found"}), 404
             
-            new_status = request.json.get("status")
+            new_status = request.json.get("status").lower()
             if not new_status:
                 return jsonify({"error": "status is required"}), 400
             
@@ -90,7 +86,7 @@ class VehicleAPI(MethodView):
             return jsonify({"error": str(e)}), 400
         
 
-vehicle_blueprint.add_url_rule('/vehicles', view_func=VehicleAPI.as_view('vehicle_list'), methods=['GET', 'POST'])
-vehicle_blueprint.add_url_rule('/vehicles/<int:vehicle_id>', view_func=VehicleAPI.as_view('vehicle_detail'), methods=['PATCH'] )  
+vehicle_blueprint.add_url_rule('/vehicles', view_func=VehicleListAPI.as_view('vehicle_list'), methods=['GET', 'POST'])
+vehicle_blueprint.add_url_rule('/vehicles/<int:vehicle_id>', view_func=VehicleDetailAPI.as_view('vehicle_detail'), methods=['GET','PATCH'] )  
 
 
