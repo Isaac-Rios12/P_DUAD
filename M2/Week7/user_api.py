@@ -1,52 +1,17 @@
-from flask import Flask, request, Response, jsonify
+from flask import Flask, request, Response, jsonify, Blueprint
 from db import DB_Manager
-from auth.jwt_manager import JWT_Manager
+from auth.jwt_instance import jwt_manager
+from auth.decorators import token_required_admin
+
 from functools import wraps
 
-app = Flask("user-service")
+user_routes = Blueprint('user_routes', __name__)
+
+
 db_manager = DB_Manager()
+          
 
-## usar llaves
-
-with open("auth/keys/private.pem", "rb") as f:
-    private_key = f.read()
-
-with open("auth/keys/public.pem", "rb") as f:
-    public_key = f.read()
-
-jwt_manager = JWT_Manager(private_key, public_key, 'RS256')
-
-@app.route("/liveness")
-def liveness():
-    return "<p>Hello, World!</p>"
-
-def token_required_admin(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        token = None
-
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(" ")[1]
-
-        if not token:
-            return Response("Token is missing", status=403)
-        
-        try:
-            decoded = jwt_manager.decode(token)
-            if not decoded:
-                return Response("Token is invalid",status=403)
-            if decoded.get('role') != 'admin':
-                return Response("You need to be a admin", status=403)
-            
-        except Exception as e:
-            return Response("Token invalid o expired", status=403)
-        
-        return f(*args, **kwargs)
-    return decorator
-        
-            
-
-@app.route('/register', methods=['POST'])
+@user_routes.route('/register', methods=['POST'])
 @token_required_admin
 def register():
     try:
@@ -67,7 +32,7 @@ def register():
     except Exception as e:
         return jsonify(error=str(e)), 500
     
-@app.route('/login', methods=['POST'])
+@user_routes.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     if(data.get('username') == None or data.get('password')== None):
@@ -84,7 +49,7 @@ def login():
 
             return jsonify(token=token)
         
-@app.route('/me')
+@user_routes.route('/me')
 def me():
     try:
         token = request.headers.get('Authorization')
@@ -100,4 +65,4 @@ def me():
         return Response(status=500)
 
 
-app.run(host="localhost",port=5000, debug=True)
+# app.run(host="localhost",port=5000, debug=True)
