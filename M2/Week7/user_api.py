@@ -3,7 +3,6 @@ from db import DB_Manager
 from auth.jwt_instance import jwt_manager
 from auth.decorators import token_required_admin
 
-from functools import wraps
 
 user_routes = Blueprint('user_routes', __name__)
 
