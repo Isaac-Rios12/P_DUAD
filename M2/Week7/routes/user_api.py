@@ -1,7 +1,8 @@
 from flask import Flask, request, Response, jsonify, Blueprint
-from db import DB_Manager
+from db.db import DB_Manager
 from auth.jwt_instance import jwt_manager
 from auth.decorators import token_required_admin
+from auth.current_user import get_current_user
 
 
 user_routes = Blueprint('user_routes', __name__)
@@ -51,17 +52,14 @@ def login():
 @user_routes.route('/me')
 def me():
     try:
-        token = request.headers.get('Authorization')
-        if (token is not None):
-            token = token.replace("Bearer ","")
-            decoded = jwt_manager.decode(token)
-            user_id = decoded['id']
-            user = db_manager.get_user_by_id(user_id)
-            return jsonify(id=user_id, username=user[1])
-        else:
-            return Response(status=403)
+        user = get_current_user()
+        return jsonify(id=user[0], username=user[1]), 200
+    except PermissionError:
+        return Response(status=403)
     except Exception as e:
         return Response(status=500)
+    
+# @user_routes.route('/')    aca debe ir el endpoint para consultar facturas del usuario
 
 
 # app.run(host="localhost",port=5000, debug=True)

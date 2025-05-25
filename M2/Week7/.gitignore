@@ -1,0 +1,6 @@
+# Ignorar la carpeta de claves privadas y públicas
+M2/WEEK7/auth/keys/
+
+# Ignorar archivos pycache (común en proyectos Python)
+__pycache__/
+*.pyc
