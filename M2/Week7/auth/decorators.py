@@ -10,15 +10,25 @@ def validate_product_data(f):
     def decorator(*args, **kwargs):
         data = request.get_json()
         if not data:
-            return jsonify({"error": "Request must be JSON"})
+            return jsonify({"error": "Request must be JSON"}), 400
         
-        quantity = data.get('quantity')
-        if quantity is None or not isinstance(quantity, int):
-            return jsonify({"error": "quantity must br an integer"}), 400
+        name = data['name']
+        if not isinstance(name, str) or not name.strip():
+            return jsonify({"error": "Name must be a non-empty string"}), 400
+        if len(name.strip()) < 2:
+            return jsonify({"error": "Name must be at least 2 characters"}), 400
         
-        price = data.get('price')
-        if price is None or not isinstance(price, (int,float)):
-            return jsonify({"error":"price must be a number"}), 400
+        quantity = data['quantity']
+        if not isinstance(quantity, int):
+            return jsonify({"error": "Quantity must br an integer"}), 400
+        if quantity < 0:
+            return jsonify({"error": "Quantity cannot be negative"}), 400
+        
+        price = data['price']
+        if not isinstance(price, (int, float)):
+            return jsonify({"error": "Price must be a number"}), 400
+        if price <= 0:
+            return jsonify({"error": "Price must be positive"}), 400
             
         return f(*args, **kwargs)
     return decorator

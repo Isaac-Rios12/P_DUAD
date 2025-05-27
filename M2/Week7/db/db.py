@@ -72,6 +72,7 @@ class DB_Manager(BaseManager):
             if (len(users)==0):
                 return None
             else:
+                #print(type(users[0]))
                 return users[0]
             
     def get_user_by_id(self, id):

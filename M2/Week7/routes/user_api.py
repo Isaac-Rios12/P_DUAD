@@ -17,10 +17,10 @@ def register():
     try:
         data = request.get_json()
         if data.get('role') not in ['admin', 'user']:
-            return Response('Role is missing',status=400)
+            return jsonify({"error": "Invalid role"}), 400
             
         if(data.get('username') == None or data.get('password') == None):
-            return  Response(status=400)
+            return jsonify({"error": "user or password not found"}), 400
         else:
             result = db_manager.insert_user(data.get('username'), data.get('password'), role= data.get('role'))
             user_id = result[0]
@@ -29,37 +29,44 @@ def register():
 
             token = jwt_manager.encode({'id':user_id})
             return jsonify(token=token)
+        
+    except PermissionError as e:
+        print("Permission error:", e)
+        return jsonify({"error": "You do not have permission to perform this operation"}), 403
+    
     except Exception as e:
-        return jsonify(error=str(e)), 500
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
     
 @user_routes.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    if(data.get('username') == None or data.get('password')== None):
-        return Response(status=400)
-    else:
-        result = db_manager.get_user(data.get('username'), data.get('password'))
-
-        if result == None:
-            return Response('User not registered', status=403)
+    try:
+        data = request.get_json()
+        if(data.get('username') == None or data.get('password')== None):
+            return Response(status=400)
         else:
-            user_id = result[0]
-            role = result[3]
-            token = jwt_manager.encode({'id': user_id, 'role': role})
+            result = db_manager.get_user(data.get('username'), data.get('password'))
 
-            return jsonify(token=token)
+            if result == None:
+                return jsonify({"error": "User not registered."}), 403
+            else:
+                user_id = result[0]
+                role = result[3]
+                token = jwt_manager.encode({'id': user_id, 'role': role})
+
+                return jsonify(token=token)
+    except Exception as e:
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
         
 @user_routes.route('/me')
 def me():
     try:
         user = get_current_user()
         return jsonify(id=user[0], username=user[1]), 200
-    except PermissionError:
-        return Response(status=403)
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
     except Exception as e:
-        return Response(status=500)
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
     
-# @user_routes.route('/')    aca debe ir el endpoint para consultar facturas del usuario
-
-
-# app.run(host="localhost",port=5000, debug=True)

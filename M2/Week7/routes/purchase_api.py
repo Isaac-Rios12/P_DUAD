@@ -14,15 +14,17 @@ def purchase_products():
         data = request.get_json()
 
         if not data or not isinstance(data, list):
-            return jsonify({"error": "Se requiere una lista de productos"}), 400
+            return jsonify({"error": "A list of products is required"}), 400 ###################################################
         
         purchase_result = db_manager.make_purchase(user[0],data)
         return jsonify(purchase_result), 201
 
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        print("Permission error:", e)
+        return jsonify({"error": "You do not have permission to perform this operation"}), 403
     except Exception as e:
-        return jsonify({"error": "Ocurrió un error interno...", "details": str(e)}), 500
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
 
 @purchase_routes.route('/my-purchases', methods=['GET'])
 def get_my_purchases():
@@ -31,7 +33,9 @@ def get_my_purchases():
         get_purchases = db_manager.get_invoices_by_user(user[0])
         return jsonify(get_purchases), 200
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 403
+        print("Permission error:", e)
+        return jsonify({"error": "You do not have permission to perform this operation"}), 403
     except Exception as e:
-        return jsonify({"error":str(e)}), 500
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
 

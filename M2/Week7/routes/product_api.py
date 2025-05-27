@@ -7,7 +7,7 @@ db_manager = Product_Manager()
 product_routes  = Blueprint('product_routes', __name__)
 
 @product_routes.route('/', methods=['GET'])
-@token_required_admin
+#@token_required_admin
 def get_all_products():
     try:
         products = db_manager.get_all_products()
@@ -17,7 +17,8 @@ def get_all_products():
             return jsonify([dict(product._mapping) for product in products]), 200
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
 
 @product_routes.route('/register', methods=['POST'])
 @token_required_admin
@@ -29,9 +30,14 @@ def register():
         product_id = result[0]
 
         return jsonify({"message": "Product created"}), 201
+    
+    except PermissionError as e:
+        print("Permission error:", e)
+        return jsonify({"error": "You do not have permission to perform this operation"}), 403
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
     
 @product_routes.route('/<int:product_id>', methods=['GET'])
 @token_required_admin
@@ -42,8 +48,14 @@ def get_product(product_id):
             return jsonify(dict(product._mapping)), 200
         else:
             return jsonify({"error": "Product not found"}), 404
+        
+    except PermissionError as e:
+        print("Permission error:", e)
+        return jsonify({"error": "You do not have permission to perform this operation"}), 403
+    
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
     
 @product_routes.route('/<int:product_id>', methods=['PUT'])
 @token_required_admin
@@ -61,9 +73,13 @@ def update_product(product_id):
                 return jsonify({"message": "Product updated"}), 200
             else:
                 return jsonify({"error": "Product not updated"}), 400
+    except PermissionError as e:
+        print("Permission error:", e)
+        return jsonify({"error": "You do not have permission to perform this operation"}), 403
             
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
     
 @product_routes.route('/<int:product_id>', methods=['DELETE'])
 @token_required_admin
@@ -72,14 +88,20 @@ def delete_product(product_id):
         product = db_manager.get_product_by_id(product_id)
         if not product:
             return jsonify({"error":"Product not registered"}), 404
+               
+        result = db_manager.delete_product(product_id)
+        if result:
+            return jsonify({"message": "Product deleted successfully"}),200
         else:
-            result = db_manager.delete_product(product_id)
-            if result:
-                return jsonify({"message": "Product deleted successfully"}),200
-            else:
-                return jsonify({"error": "Product not deleted"}), 400
+            return jsonify({"error": "Product not deleted"}), 400
+        
+    except PermissionError as e:
+        print("Permission error:", e)
+        return jsonify({"error": "You do not have permission to perform this operation"}), 403
+    
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Internal error: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
 
         
 
