@@ -34,7 +34,7 @@ invoice_table = Table(
 )
 
 invoice_item_table= Table(
-    "invoice_itmes",
+    "invoice_items",
     metadata_obj,
     Column("id", Integer, primary_key=True),
     Column("invoice_id", Integer, ForeignKey("invoices.id"), nullable=False),
@@ -50,7 +50,7 @@ class BaseManager:
         metadata_obj.create_all(self.engine)
 
 
-class DB_Manager(BaseManager):
+class User_Manager(BaseManager):
     def __init__(self):
         super().__init__()
 
@@ -163,7 +163,7 @@ class Purchase_Manager(BaseManager):
         
         return validated_products
     
-    def calcualte_total_amount(self, validate_products):
+    def calculate_total_amount(self, validate_products):
         return sum(product['price'] * quantity for product,quantity in validate_products)
     
     def create_invoice(self, user_id, total, conn):
@@ -188,30 +188,32 @@ class Purchase_Manager(BaseManager):
             )
             conn.execute(updated_stock_stmt)
 
-#preguntar nivel de accesooooo
+
     def make_purchase(self, user_id, products):
         with self.engine.begin() as conn:
             #primero valido los prodcutos
             validated_products = self.validated_and_get_products(products, conn)
 
             #luego si todo va bien, calculo total
-            total = self.calcualte_total_amount(validated_products)
+            total = self.calculate_total_amount(validated_products)
 
             #leugo creo la factura
             invoice_id = self.create_invoice(user_id, total, conn)
 
-            #termina creando los items en tabal items
+            #termina creando los items en tabla items
             self.insert_invoice_items_and_update_stock(invoice_id, validated_products, conn)
 
             return {"message": "Compra realizada con exito", "invoice_id":invoice_id}
         
     def get_invoices_by_user(self, user_id):
         with self.engine.connect() as conn:
+            #todas las facturas del usuario
             invoices_stmt = select(invoice_table).where(invoice_table.c.user_id == user_id)
             invoices = conn.execute(invoices_stmt).mappings().all()
 
             result = []
 
+            #por cada factura de user, busco los items almacenados en otra tabla
             for invoice in invoices:
                 items_stmt = select(invoice_item_table).where(invoice_item_table.c.invoice_id == invoice['id'])
                 items = conn.execute(items_stmt).mappings().all()
@@ -222,4 +224,4 @@ class Purchase_Manager(BaseManager):
 
             return result
                 
-db = DB_Manager()
+db = User_Manager()

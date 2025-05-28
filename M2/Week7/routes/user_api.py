@@ -1,5 +1,5 @@
 from flask import Flask, request, Response, jsonify, Blueprint
-from db.db import DB_Manager
+from db.db import User_Manager
 from auth.jwt_instance import jwt_manager
 from auth.decorators import token_required_admin
 from auth.current_user import get_current_user
@@ -8,7 +8,7 @@ from auth.current_user import get_current_user
 user_routes = Blueprint('user_routes', __name__)
 
 
-db_manager = DB_Manager()
+db_manager = User_Manager()
           
 
 @user_routes.route('/register', methods=['POST'])

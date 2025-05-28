@@ -1,9 +1,9 @@
 from flask import request
 
-from db.db import DB_Manager
+from db.db import User_Manager
 from .jwt_instance import jwt_manager
 
-db_manager = DB_Manager()
+db_manager = User_Manager()
 
 def get_current_user():
     token = request.headers.get("Authorization")
