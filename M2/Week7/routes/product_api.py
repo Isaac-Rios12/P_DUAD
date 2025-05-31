@@ -40,7 +40,6 @@ def register():
         return jsonify({"error": "An internal server error occurred."}), 500
     
 @product_routes.route('/<int:product_id>', methods=['GET'])
-@token_required_admin
 def get_product(product_id):
     try:
         product = db_manager.get_product_by_id(product_id)

@@ -9,7 +9,7 @@ user_table = Table(
     "users",
     metadata_obj,
     Column("id", Integer, primary_key=True),
-    Column("username", String(30)),
+    Column("username", String(30), unique=True),
     Column("password", String),
     Column("role", String(11))
 )
@@ -72,7 +72,6 @@ class User_Manager(BaseManager):
             if (len(users)==0):
                 return None
             else:
-                #print(type(users[0]))
                 return users[0]
             
     def get_user_by_id(self, id):
@@ -84,6 +83,16 @@ class User_Manager(BaseManager):
                 return None
             else:
                 return users[0]
+            
+    def update_user_role(self, username, new_role='admin'):
+        stmt = update(user_table).where(user_table.c.username == username).values(role=new_role)
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt)
+            conn.commit()
+
+            if result.rowcount == 0:
+                return False
+            return True
             
 class Product_Manager(BaseManager):
     def __init__(self):
