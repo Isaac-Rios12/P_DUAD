@@ -1,0 +1,25 @@
+# Ignorar la carpeta de claves privadas y públicas
+/auth/keys/
+
+# Ignorar archivos pycache (común en proyectos Python)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignorar archivos de entorno y configuración sensible
+.env
+*.env
+.env.local
+
+# Ignorar archivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ignorar archivos de sistema
+.DS_Store
+Thumbs.db
+
+# .gitignore
+.env
