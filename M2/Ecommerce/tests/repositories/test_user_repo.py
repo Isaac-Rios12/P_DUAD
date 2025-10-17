@@ -1,20 +1,8 @@
 import pytest
-from db.manager import DatabaseManager
-from repositories.user_repo import UserRepository
-
-import uuid
-from repositories.user_repo import UserCreationError, UserNotFoundError, UserRepositoryError
-import pytest
-import uuid
 from repositories.user_repo import (
     UserRepository, UserRepositoryError, UserCreationError,
     UserNotFoundError
 )
-
-import pytest
-from repositories.user_repo import UserCreationError, UserNotFoundError, UserRepositoryError
-
-
 def test_insert_user_and_check(user_repo, unique_user_data):
     new_user = user_repo.create_user(**unique_user_data)
 

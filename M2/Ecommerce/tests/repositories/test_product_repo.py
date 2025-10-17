@@ -2,13 +2,6 @@ import pytest
 from db.manager import DatabaseManager
 from repositories.product_repo import ProductRepository, ProductCreationError, ProductNotFoundError, ProductRepositoryError, ProductValidationError
 
-@pytest.fixture
-def db_manager():
-    return DatabaseManager()
-
-@pytest.fixture
-def product_repo(db_manager):
-    return ProductRepository()
 
 def test_add_product_with_success(product_repo):
     new_product = product_repo.create_product("Dog food", "Premium foof", 2500, 10 )

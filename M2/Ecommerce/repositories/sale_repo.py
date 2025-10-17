@@ -1,5 +1,6 @@
 from db.models.sale import Sale
 from db.models.cart import Cart
+from db.models.product import Product
 from db.models.sale_item import SaleItem
 from db.manager import db
 
@@ -59,11 +60,12 @@ class SaleRepository:
                 with session.begin():
                     cart = (
                         session.query(Cart).filter(
-                            Cart.user_id == user_id
+                            Cart.user_id == user_id, 
+                            Cart.is_finalized == False
                         ).one_or_none()
                     )
                     if not cart or not cart.items:
-                        raise SaleCreationError("Cart is empy or not found")
+                        raise SaleCreationError("Cart is empty or not found")
                     
                     #calculo del total
                     total = self._calculate_total(cart)
@@ -80,11 +82,17 @@ class SaleRepository:
 
                     #para actualizar stock
                     for cart_item in cart.items:
-                        if cart_item.product.stock < cart_item.quantity:
+                        product = (
+                            session.query(Product)
+                            .filter(Product.id == cart_item.product_id)
+                            .with_for_update()
+                            .one()
+                        )
+                        if product.stock < cart_item.quantity:
                             raise SaleCreationError(f"Not enough stock for product {cart_item.product.name}")
                         
-                        cart_item.product.stock -= cart_item.quantity
-                        session.add(cart_item.product)
+                        product.stock -= cart_item.quantity
+                        session.add(product)
 
                     #copia datos del cart_items a sale_item
                     self._copy_cart_items_to_sale(session, cart, new_sale)

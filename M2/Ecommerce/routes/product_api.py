@@ -1,38 +1,57 @@
 from flask import Flask, request, Response, jsonify, Blueprint
 from repositories.product_repo import ProductRepositoryError, ProductRepository, ProductNotFoundError, ProductCreationError
-#from repositories.role_repo import RoleRepository
-from auth.jwt_instance import jwt_instance
-from auth.utils import token_required_admin, get_current_user
-
+from auth.utils import token_required_admin
+from caching.cache import cache_manager
 product_routes = Blueprint("product_routes", __name__)
+import json
 
 product_repo = ProductRepository()
 
 @product_routes.route('/all-products', methods=['GET'])
 def get_all_products():
     try:
+        cache_key = "products:all"
+        cached_data = cache_manager.get_data(cache_key)
+        if cached_data:
+            return jsonify({"products": json.loads(cached_data)}), 200
+        
         products = product_repo.get_all_products()
         if not products:
             return jsonify({'error': "No products found"}), 404
+        
+        cache_manager.store_data(cache_key, json.dumps(products), time_to_live=300)
         return jsonify({"products": products}), 200
+    
     except ProductNotFoundError as e:
         print(e)
         return jsonify({"Message": "No products found"}), 404
-    except Exception as j:
-        print(j)
+    except Exception as e:
+        print(e)
         return jsonify({"error": "Internal Error"}), 500
     
 @product_routes.route('/<int:product_id>', methods=['GET'])
 def get_product_by_id(product_id):
     try:
+        cache_key = f"product:{product_id}"
+        cached_data = cache_manager.get_data(cache_key)
+
+        if cached_data:
+            return jsonify({"Product": json.loads(cached_data)}), 200
+        
         product = product_repo.get_product_by_id(product_id)
-        return jsonify({"Product ": product}), 200
+        if not product:
+            return jsonify({'error': "No products found"}), 404
+        
+        cache_manager.store_data(cache_key, json.dumps(product), time_to_live=300)
+
+        return jsonify({"Product": product}), 200
+
     except ProductNotFoundError as e:
         print(e)
-        return jsonify({"Message": str(e)}), 404
+        return jsonify({"error": str(e)}), 404
     except Exception as j:
         print(j)
-        return jsonify({"Message": "Internar error"}), 500
+        return jsonify({"error": "Internal error"}), 500
 
 @product_routes.route('/register', methods=['POST'])
 @token_required_admin
@@ -59,7 +78,10 @@ def register_product():
             price=price,
             stock=stock
         )
-        return jsonify({"New product ": new_product}), 201
+
+        cache_manager.delete_data("products:all")
+        cache_manager.delete_data_with_pattern("products:search:*")
+        return jsonify({"New product": new_product}), 201
     except ProductCreationError as e:
         print(e)
         return jsonify({"Message": "Error creating the product"}), 400
@@ -72,6 +94,11 @@ def register_product():
 def delete_product(product_id):
     try:
         delete_product = product_repo.delete_product(product_id)
+
+        cache_manager.delete_data("products:all")
+        cache_manager.delete_data(f"product:{product_id}")
+        cache_manager.delete_data_with_pattern("products:search:*")
+
         return jsonify({"message": f"Product with ID {product_id} deleted"}), 200
     except ProductNotFoundError as e:
         print(e)
@@ -97,6 +124,10 @@ def update_product_price(product_id):
             return jsonify({"error": "New price must be positive"}), 400
         update_product_price = product_repo.update_product_price(product_id, new_price)
 
+        cache_manager.delete_data(f"product:{product_id}")
+        cache_manager.delete_data("products:all")
+        cache_manager.delete_data_with_pattern("products:search:*")
+
         return jsonify({"message": f"product {product_id} price updated succesfully",
                          "product": update_product_price
                          }), 200
@@ -116,9 +147,16 @@ def get_products_by_name():
     try:
         name = request.args.get('name')
         if name:
+            cache_key = f"products:search:{name}"
+            cached_data = cache_manager.get_data(cache_key)
+            if cached_data:
+                return jsonify(json.loads(cached_data)), 200
+            
             product = product_repo.get_products_by_name(name)
             if not product:
                 return jsonify({"message": "No product found with that name"}), 404
+            
+            cache_manager.store_data(cache_key, json.dumps(product), time_to_live=120)
             return jsonify(product), 200
     except ProductNotFoundError as e:
         print(e)

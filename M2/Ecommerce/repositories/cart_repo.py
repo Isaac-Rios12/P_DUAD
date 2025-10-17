@@ -87,7 +87,7 @@ class CartRepository:
         try:
             with db.get_session() as session:
                 with session.begin():
-                    cart = session.query(Cart).filter_by(user_id=user_id).first()
+                    cart = session.query(Cart).filter_by(user_id=user_id, is_finalized=False).first()
                     if not cart:
                         raise CartNotFoundError(f"Cart for user {user_id} not found")
                     session.delete(cart)
@@ -114,13 +114,14 @@ class CartRepository:
         try:
             with db.get_session() as session:
                 with session.begin():
-                    cart = session.query(Cart).filter_by(user_id=user_id).first()
+                    cart = session.query(Cart).filter_by(user_id=user_id, is_finalized=False).first()
                     if not cart:
                         cart = Cart(user_id=user_id)
                         session.add(cart)
                         session.flush()
                     self._add_items_logic(session, cart, items)
                     session.flush()
+                    session.refresh(cart)   # refresca el carrito y sus relaciones
                     return self._format_cart(cart)
         except (InsufficientStockError, ProductNotFoundError) as e:
             raise
@@ -133,7 +134,7 @@ class CartRepository:
         try:
             with db.get_session() as session:
                 with session.begin():
-                    cart = session.query(Cart).filter_by(user_id=user_id).first()
+                    cart = session.query(Cart).filter_by(user_id=user_id, is_finalized=False).first()
                     if not cart:
                         raise CartNotFoundError(f"No cart found for user {user_id}")
                     item = session.scalars(
@@ -161,7 +162,7 @@ class CartRepository:
         try:
             with db.get_session() as session:
                 with session.begin():
-                    cart = session.query(Cart).filter_by(user_id=user_id).first()
+                    cart = session.query(Cart).filter_by(user_id=user_id, is_finalized=False).first()
                     if not cart:
                         raise CartNotFoundError(f"No cart found for user {user_id}")
                     item = session.scalars(

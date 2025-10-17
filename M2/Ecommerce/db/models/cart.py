@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, DateTime, func, ForeignKey, Boolean
+from sqlalchemy import Integer, String, DateTime, func, ForeignKey, Boolean, UniqueConstraint
 from .base import Base
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime
@@ -7,6 +7,9 @@ from typing import List
 
 class Cart(Base):
     __tablename__ = 'carts'
+    __table_args__ = (
+        UniqueConstraint("user_id", "is_finalized", name="uq_user_cart_active"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))

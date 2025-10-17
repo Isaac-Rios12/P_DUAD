@@ -17,6 +17,8 @@ def test_add_items_to_cart_successfully(cart_repo, test_user, test_products):
         [{"product_id": p["id"], "quantity": 2} for p in test_products]
     )
 
+    print(updated_cart)
+
     assert updated_cart["user_id"] == test_user["id"]
     assert len(updated_cart["items"]) == len(test_products)
 

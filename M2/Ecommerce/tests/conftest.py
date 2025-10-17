@@ -1,16 +1,48 @@
-
-import pytest
+import os
 import uuid
+import pytest
+from dotenv import load_dotenv
+import random
+from db.models import Product
+
+load_dotenv()
+
+os.environ["DATABASE_URL"] = os.getenv("DATABASE_URL_TEST")
+
+from main import create_app
+from db.manager import db 
 from repositories.user_repo import UserRepository
 from repositories.product_repo import ProductRepository
 from repositories.cart_repo import CartRepository
 from repositories.sale_repo import SaleRepository
-from repositories.role_repo import RoleRepository
+from repositories.role_repo import RoleRepository, RoleNotFoundError
+
+# APP Y CLIENT
+@pytest.fixture(scope="session")
+def app():
+    app = create_app(testing=True)
+    yield app
+
+@pytest.fixture
+def client(app):
+    return app.test_client()
 
 
-# ==============================
-# FIXTURES DE REPOSITORIOS
-# ==============================
+# SESIÓN TEMPORAL
+@pytest.fixture(scope="session")
+def db_session(app):
+    with app.app_context():
+        connection = db.engine.connect()
+        transaction = connection.begin()
+        session = db.Session(bind=connection)
+        try:
+            yield session
+        finally:
+            transaction.rollback()# !no funciona aca
+            connection.close()
+            session.close()
+
+# FIXTURES DE REPOSITORIOS, inyeccion de instancias.
 @pytest.fixture(scope="session")
 def user_repo():
     return UserRepository()
@@ -31,49 +63,49 @@ def cart_repo():
 def sale_repo():
     return SaleRepository()
 
-# FIXTURE DE ROLES
+
+# ROLES BASE
 @pytest.fixture(scope="session")
-def test_roles(role_repo):
-    """Crea roles base si no existen."""
-    roles_data = [
-        {"name": "Admin"},
-        {"name": "Customer"}
-    ]
+def base_roles(role_repo):
+    """
+    Crea los roles 'Admin' y 'Customer' en la DB de test una sola vez.
+    Permanecen en la DB durante toda la sesión de tests.
+    """
+    roles_data = ["Admin", "Customer"]
     created_roles = []
 
-    for rdata in roles_data:
-        existing_role = role_repo.get_role_by_name(rdata["name"])
-        if existing_role:
-            created_roles.append(existing_role)
-        else:
-            new_role = role_repo.create_role(rdata["name"])
-            created_roles.append(new_role)
+    for role_name in roles_data:
+        try:
+            # Intenta obtener el rol
+            role = role_repo.get_role_by_name(role_name)
+        except RoleNotFoundError:
+            # Si no existe, lo crea
+            role = role_repo.create_role(role_name)
+            # db_session.add(role)
+            # db_session.commit()
+        created_roles.append(role)
 
     return created_roles
 
-# FIXTURE DE USUARIO BASE
-@pytest.fixture(scope="session")
-def test_user(user_repo, test_roles):
-    """Crea un usuario de prueba con rol Customer si no existe."""
-    customer_role = next(r for r in test_roles if r["name"] == "Customer")
-    existing_user = user_repo.get_user_by_nickname("test-user")
-    if existing_user:
-        return existing_user
 
+# USUARIO BASE POR TEST
+@pytest.fixture
+def test_user(user_repo, base_roles):
+    customer_role = next(r for r in base_roles if r["name"] == "Customer")
+    unique_suffix = random.randint(1, 100000)
     return user_repo.create_user(
         fullname="Test User",
-        nickname="test-user",
-        email="testuser@example.com",
+        nickname=f"test-user-{unique_suffix}",
+        email=f"testuser{unique_suffix}@example.com",
         password="securepass",
         role_id=customer_role["id"]
     )
 
 
-# GENERADOR DE DATOS ÚNICOS PARA TESTS
+# DATOS ÚNICOS POR TEST
 @pytest.fixture
-def unique_user_data(test_roles):
-    """Genera datos de usuario únicos para evitar duplicados en las pruebas."""
-    customer_role = next(r for r in test_roles if r["name"] == "Customer")
+def unique_user_data(base_roles):
+    customer_role = next(r for r in base_roles if r["name"] == "Customer")
     uid = uuid.uuid4().hex[:8]
     return {
         "fullname": f"User {uid}",
@@ -83,31 +115,37 @@ def unique_user_data(test_roles):
         "role_id": customer_role["id"]
     }
 
-
-# FIXTURE DE PRODUCTOS
-@pytest.fixture(scope="session")
+# PRODUCTOS POR TEST
+@pytest.fixture(scope="function")
 def test_products(product_repo):
+    unique_id = uuid.uuid4().hex[:8]
     products_data = [
-        {"name": "Test Product 1", "description": "Producto de prueba 1", "price": 50.0, "stock": 100},
-        {"name": "Test Product 2", "description": "Producto de prueba 2", "price": 75.0, "stock": 100},
+        {"name": f"Test Product 1 {unique_id}", "description": "Producto de prueba 1", "price": 50.0, "stock": 100},
+        {"name": f"Test Product 2 {unique_id}", "description": "Producto de prueba 2", "price": 75.0, "stock": 100},
     ]
     created_products = []
 
     for pdata in products_data:
-        existing_product = product_repo.get_products_by_name(pdata["name"])
-        if existing_product:
-            created_products.extend(existing_product)  # ya es dict/ORM
-        else:
-            new_product = product_repo.create_product(**pdata)
+        new_product = product_repo.create_product(**pdata)
+        if isinstance(new_product, list):
             created_products.extend(new_product)
-
+        else:
+            created_products.append(new_product)
+    
     return created_products
 
 
-# FIXTURE DE CARRITO
-@pytest.fixture
+# CARRITO POR TEST
+@pytest.fixture(scope="function")
 def test_cart(cart_repo, test_user, test_products):
+    # Limpiar carrito antes de empezar
+    for p in test_products:
+        try:
+            cart_repo.remove_item_from_user_cart(test_user["id"], p["id"])
+        except Exception:
+            pass  
+
     cart = cart_repo.get_or_create_cart_by_user(test_user["id"])
     items = [{"product_id": p["id"], "quantity": 2} for p in test_products]
-    cart = cart_repo.add_items_to_user_cart(cart["id"], items)
+    cart = cart_repo.add_items_to_user_cart(test_user["id"], items)
     return cart

@@ -84,26 +84,26 @@ def login():
                 return jsonify({"error": "Invalid nickname or password"}), 406
             else:
                 user_id = result["id"]
-                print(result["role_name"])
+                #print(result["role_name"])
                 role = result["role_name"]
                 token = jwt_instance.encode({'id': user_id, 'role': role})
-                return jsonify(token=token)
+                return jsonify(token=token), 200
     except UserNotFoundError as e:
         return jsonify({"error": str(e)}), 404
     except UserRepositoryError as e:
         return jsonify({"error": str(e)}), 401
     except Exception as e:
-       
         print(f"Unexpected error: {e}")
-        
         return jsonify({"error": "Internal server error"}), 500
     
 @user_routes.route('/update', methods=['PATCH'])
 def update_user():
     try:
         user = get_current_user()
+        if not user or "id" not in user:
+            return jsonify({"error": "No authenticated user found"}), 401
     except PermissionError as e:
-        return jsonify({"error": str(e)}), 401
+        return jsonify({"error": "You do not have permission to perform this action"}), 401
      
     user_id = user["id"]
     data = request.get_json()
@@ -149,7 +149,7 @@ def get_all_users():
     try:
         all_users = user_repo.get_all_users()
         if not all_users:
-            return jsonify({"Error": "No users found"}), 404
+            return jsonify({"error": "No users found"}), 404
         return jsonify(all_users), 200
     except UserNotFoundError as e:
         print(e)

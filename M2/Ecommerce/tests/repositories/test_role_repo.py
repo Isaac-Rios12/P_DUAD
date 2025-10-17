@@ -20,7 +20,7 @@ def test_create_role_with_duplicate_name_raises_error(role_repo):
     with pytest.raises(RoleCreationError) as exc_info:
         role_repo.create_role(role_name)
     
-    assert "llave duplicada" in str(exc_info.value).lower()
+    assert "already exists" in str(exc_info.value).lower()
 def test_try_delete_non_existing_role(role_repo):
     role_name = f"delete_role_{uuid.uuid4().hex[:8]}"
     

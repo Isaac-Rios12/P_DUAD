@@ -1,8 +1,9 @@
-from flask import Flask, request, Response, jsonify, Blueprint
+from flask import request, jsonify, Blueprint
 from repositories.cart_repo import CartRepository, ItemNotInCartError, ProductNotFoundError, InsufficientStockError, InvalidCartIdentifierError, CartCreationError, CartRepositoryError, CartNotFoundError
-#from repositories.role_repo import RoleRepository
+
 from auth.jwt_instance import jwt_instance
-from auth.utils import token_required_admin, get_current_user
+from auth.utils import get_current_user
+
 
 cart_routes = Blueprint("cart_routes", __name__)
 
@@ -24,7 +25,7 @@ def get_cart():
         return jsonify({"error": str(e)}), 401
     except Exception as e:
         print(e)
-        return jsonify({"error": "Internar server error"}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 @cart_routes.route('/delete', methods=['DELETE'])
 def delete_cart():
@@ -101,8 +102,6 @@ def update_item_quantity(product_id):
     except InsufficientStockError as e:
         return jsonify({"error": str(e)}), 400
     except ItemNotInCartError as e:
-        return jsonify({"error": str(e)}), 404
-    except ProductNotFoundError as e:
         return jsonify({"error": str(e)}), 404
     except CartRepositoryError as e:
         return jsonify({"error": str(e)}), 500
