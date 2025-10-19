@@ -23,7 +23,7 @@ class ProductRepository:
             "sku": product.sku,
             "name": product.name,
             "description": product.description,
-            "price": product.price,
+            "price": float(product.price),
             "stock": product.stock
         }
     

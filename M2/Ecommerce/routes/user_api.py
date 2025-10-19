@@ -30,7 +30,7 @@ def register():
     if missing_fields:
         return jsonify({"error": f"Missing data: {', '.join(missing_fields)}"}), 400
     
-    role_name = "user"
+    role_name = "customer"
     role = role_repo.get_role_by_name(role_name)
 
     if role is None:

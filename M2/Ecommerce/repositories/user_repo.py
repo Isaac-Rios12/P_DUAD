@@ -47,13 +47,13 @@ class UserRepository:
                     result = session.execute(stmt)
                     users = result.scalars().all()
                     if not users:
-                        raise UserNotFoundError("No se encontraron usuarios registrados")
+                        raise UserNotFoundError("No users found")
                     return [self._format_user(user) for user in users]
 
         except UserNotFoundError:
             raise 
         except Exception as e:
-            raise UserRepositoryError(f"Error al obtener todos los usuarios: {e}")
+            raise UserRepositoryError(f"Error retrieving all users: {e}")
 
     def create_user(self, fullname, nickname, email, password, role_id):
         try:
@@ -65,8 +65,8 @@ class UserRepository:
                     session.flush() # asegura que se actualicen campos autogenerados
                     return self._format_user(new_user)
         except Exception as e:
-            #print(f"Error al insertar usuario...{e}")
-            raise UserCreationError(f"No se pudo crear el usuario... {e}")
+            print(f"Error al insertar usuario...{e}")
+            raise UserCreationError(f"Error creating the user")
 
     def get_user_for_login(self, nickname, password):
         try:
@@ -76,16 +76,17 @@ class UserRepository:
                     stmt = select(User).where(User.nickname == nickname)
                     user = session.scalars(stmt).first()
                     if not user:
-                        raise UserNotFoundError("Usuario no encontrado")
+                        raise UserNotFoundError("User not found")
                     
                     if not self._verify_password(password, user.password):
-                        raise UserRepositoryError("Contraseña incorrecta")
+                        raise UserRepositoryError("Incorrect password")
 
                     return self._format_user(user)
         except UserNotFoundError:
             raise
         except Exception as e:
-            raise UserRepositoryError(f"Error en login: {e}")
+            print(e)
+            raise UserRepositoryError(f"Login Error")
         
 
     def get_user_by_id(self, user_id):
@@ -94,13 +95,13 @@ class UserRepository:
                 with session.begin():
                     user = session.get(User, user_id)
                     if not user:
-                        raise UserNotFoundError(f"Usuario con ID {user_id} no encontrado")
+                        raise UserNotFoundError(f"User with ID {user_id} not found")
                     return self._format_user(user)
         except UserNotFoundError:
             raise
         except Exception as e:
             #print(f"Error al obtener usuario... {e}")
-            raise UserRepositoryError(f"Error al obtener usuario por ID: {e}")
+            raise UserRepositoryError(f"Error retrieving user witd ID {user_id}")
 
     def update_user(self, user_id, email, password):
         try:
@@ -137,10 +138,10 @@ class UserRepository:
                 with session.begin():
                     user = session.get(User, user_id)
                     if not user:
-                        raise UserNotFoundError("Usuario no encontrado")
+                        raise UserNotFoundError("User not found")
                     session.delete(user)
         except UserNotFoundError:
             raise
         except Exception as e:
-            #print(f"Error al eliminar usuario...{e}")
-            raise UserRepositoryError(f"Error al eliminar el usuario... {e}")
+            print(f"Error al eliminar usuario...{user_id}")
+            raise UserRepositoryError(f"Error deleting the user..")

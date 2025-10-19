@@ -1,5 +1,3 @@
-=-0=-0-# Ecommerce
-
 Flask project with JWT authentication, postgreSQL and Redis.
 
 ## Prerequisites

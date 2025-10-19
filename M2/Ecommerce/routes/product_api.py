@@ -13,6 +13,7 @@ def get_all_products():
         cache_key = "products:all"
         cached_data = cache_manager.get_data(cache_key)
         if cached_data:
+            print("desde redis.............")
             return jsonify({"products": json.loads(cached_data)}), 200
         
         products = product_repo.get_all_products()
