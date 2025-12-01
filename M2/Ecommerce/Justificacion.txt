@@ -1,0 +1,38 @@
+Justificación de decisiones técnicas
+
+1. Uso de caché(Redis)
+    - Se usó Redis como sistema de caché para mejorar el rendimiento del backend en endpoints que realizan
+    lecturas frecuentes de datos que no cambian muy seguido.
+
+    Ejemplo:
+    GET /products/all-products
+    - Este endpoint obtiene todos los productos desde la base de datos
+    - Si no se usa el caché se tiene que hacer una consulta directa
+    - Con el uso de caché se guardan los datos en Redis y se usan directamente desde memoria,
+    así reduce consultas a la base de datos,y mejora el tiempo de respuesta.
+
+    -Ventjas de usar Redis:
+        - Menor número de consultas a la base de datos
+        - Las respuestas son más rápidas
+
+    -Uso de TTL
+        - El ttl permite que los datos se actualicen automáticamente después del tiempo asignado.
+        - Esto ayuda a mantener un buen rendimiento y además una información mas certera.
+        - Si algún producto se actualiza, la configuración permite que los datos se invaliden para que la información
+        se obtenga correcta desde la base de datos
+
+
+    Se implementó el uso de Redis en este proyecto para mejorar el rendimiento y la eficiencia. Usandose en endpoints
+    donde se hacen consultas de datos más frecuentes, reduciendo la carga en la base y siempre procurando que la información se
+    mantenga actualizada siempre.
+
+2. Base de datos 
+    La base de datos está diseñada para gestionar usuarios, roles, productos y carritos de compra.
+    Users: Almacena los datos de los usuarios registrados y su rol.
+    Roles: Define los tipos de usuarios.
+    Products: Contiene informaciónde los productos, incluyendo SKU, nombre, descripción, precio y stock.
+
+    El diseño creado busca mantener la escalabilidad, para facilitar futuras extensiones del sistema.
+    
+    https://drawsql.app/teams/-4596/diagrams/e-commerce
+
