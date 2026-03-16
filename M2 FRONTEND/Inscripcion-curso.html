@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <form action="https://dummyjson.com/test" method="POST">
+        <h1>Formulario de Inscripción a Curso</h1>
+        <p>Ingrese su información para inscribirse al curso.</p>
+
+        <label for="nombre">Nombre completo</label>
+        <br />
+        <input type="text" id="nombre" name="nombre" />
+        <br />
+
+        <label for="correo">Correo Electronico</label>
+        <br />
+        <input type="text" id="correo" name="correo" />
+        <br />
+
+        <label for="cedula">Cedula</label>
+        <br />
+        <input type="text" name="cedula" id="cedula">
+        <br />
+
+        <p>Seleccione cuso a matricular</p>
+
+        <select name="curso" id="curso">
+            <option value="desarrollo_web">Desarrollo Web</option>
+            <option value="redes">Redes</option>
+            <option value="ciberseguridad">Ciberseguridad</option>
+        </select>
+        <br />
+        <br />
+        <button type="submit">Matricular</button>
+    </form>
+</html>
