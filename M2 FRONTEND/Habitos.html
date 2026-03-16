@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <form action="resumen.html" method="POST">
+
+        <h1>Encuesta de Hábitos de Lectura</h1>
+
+        <label for="nombre">Nombre</label>
+        <br>
+        <input type="text" id="nombre" name="nombre">
+        <br>
+
+        <label for="edad">Edad</label>
+        <br>
+        <input type="number" id="edad" name="edad">
+        <br><br>
+
+        <p>¿Con qué frecuencia lee libros?</p>
+
+        <input type="radio" name="frecuencia" value="diario"> Diario
+        <br>
+
+        <input type="radio" name="frecuencia" value="semanal"> Semanal
+        <br>
+
+        <input type="radio" name="frecuencia" value="casi_nunca"> Casi nunca
+        <br><br>
+
+        <p>Recomiende su libro favorito</p>
+
+        <textarea name="libro" rows="5" cols="40"></textarea>
+        <br><br>
+
+        <button type="submit">Enviar encuesta</button>
+
+    </form>
+</html>
